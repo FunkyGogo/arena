@@ -1,0 +1,168 @@
+<title>ARENA</title>
+<link rel="stylesheet" href="css/style.css">
+<div id="gra">
+
+    <!-- ===== Nagłówek: runda i czyja tura ===== -->
+    <header id="naglowek">
+      <span id="runda">Runda 1</span>
+      <span id="dystans"></span>
+      <span id="tura">Twoja tura</span>
+      <button id="pomoc-przycisk" title="Co robią umiejętności">?</button>
+    </header>
+
+    <!-- ===== Arena: bohater po lewej (zwrócony w prawo), wróg po prawej ===== -->
+    <div id="arena">
+      <!-- Wszyscy stoją na jednej linii podłogi -->
+      <div id="scena">
+        <div id="miejsce-gracza">
+          <img id="gracz-postac" class="arena-postac" alt="">
+        </div>
+        <div id="miejsca-wrogow"></div>
+      </div>
+      <div id="liczby"></div>
+
+      <!-- Ostatnie zdarzenie — jedna linijka zamiast okna dziennika -->
+      <section id="dziennik"></section>
+    </div>
+
+    <!-- ===== Przeciwnicy (jedna karta na wroga, wataha = kilka) ===== -->
+    <div id="wrogowie"></div>
+
+    <!-- ===== Bohater ===== -->
+    <section id="gracz-karta" class="karta karta-gracza">
+      <div id="gracz-sylwetka" class="sylwetka sylwetka-gracza">
+        <img id="gracz-portret" alt="">
+        <span id="gracz-ikona">🛡</span>
+      </div>
+      <div class="karta-opis">
+        <h2 id="gracz-nazwa">—</h2>
+        <div class="pasek-tlo pasek-hp">
+          <div id="gracz-hp-pasek" class="pasek-wypelnienie hp"></div>
+          <span id="gracz-hp-tekst" class="pasek-tekst">— / —</span>
+        </div>
+        <div class="pasek-tlo pasek-zasobu">
+          <div id="gracz-zasob-pasek" class="pasek-wypelnienie"></div>
+          <span id="gracz-zasob-tekst" class="pasek-tekst">— / —</span>
+        </div>
+        <div id="gracz-statusy" class="lista-statusow"></div>
+      </div>
+    </section>
+
+    <!-- ===== Przywołania druida ===== -->
+    <div id="pupile"></div>
+
+    <!-- ===== Opis podświetlonej umiejętności ===== -->
+    <div id="podpowiedz"></div>
+
+    <!-- ===== Pasek akcji: atak podstawowy + 4 sloty + eliksir ===== -->
+    <nav id="pasek-akcji"></nav>
+
+  </div>
+
+  <!-- ===== Ekran wyboru klasy ===== -->
+  <div id="ekran-klas">
+    <div class="okno okno-szerokie">
+      <h1>Kim będziesz na arenie?</h1>
+      <p class="okno-podtytul">Klasę wybierasz raz na przejście. Każda inaczej rozwiązuje te same problemy.</p>
+      <div id="lista-klas"></div>
+    </div>
+  </div>
+
+
+  <!-- ===== Miasto: hub między walkami ===== -->
+  <div id="ekran-miasta">
+    <div class="okno okno-szerokie">
+      <h1>Ludus w Kapui</h1>
+      <div id="miasto-naglowek"></div>
+      <div id="miasto-budynki"></div>
+    </div>
+
+    <div id="miasto-panel">
+      <div class="okno okno-szerokie">
+        <h1 id="panel-tytul">—</h1>
+        <div id="panel-tresc"></div>
+        <button id="panel-zamknij">Wróć na ulicę</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Drabina areny: 15 rang regionu ===== -->
+  <div id="ekran-drabiny">
+    <div class="okno okno-szerokie">
+      <h1>Ludus w Kapui — drabina areny</h1>
+      <div id="pasek-bohatera"></div>
+      <div id="lista-rang"></div>
+      <button id="drabina-powrot" class="przycisk-poboczny">Wróć do miasta</button>
+    </div>
+  </div>
+
+  <!-- ===== Ekran końca walki ===== -->
+  <div id="ekran-konca">
+    <div class="okno">
+      <h1 id="konca-tytul">—</h1>
+      <p id="konca-opis">—</p>
+      <div id="konca-lup"></div>
+      <div id="konca-przyciski"></div>
+    </div>
+  </div>
+
+  <!-- ===== Drzewko umiejętności ===== -->
+  <div id="ekran-drzewka">
+    <div class="okno okno-szerokie">
+      <h1>Drzewko umiejętności</h1>
+      <p id="drzewko-pu" class="okno-podtytul">—</p>
+
+      <div id="drzewko-sloty" class="sekcja-slotow"></div>
+      <div id="drzewko-zakladki"></div>
+      <div id="drzewko-wezly"></div>
+
+      <button id="drzewko-reset" class="przycisk-poboczny">—</button>
+      <button id="drzewko-zamknij">Gotowe</button>
+    </div>
+  </div>
+
+  <!-- ===== Ekran awansu: rozdawanie punktów cech ===== -->
+  <div id="ekran-awansu">
+    <div class="okno okno-szerokie">
+      <h1>Rozwój bohatera</h1>
+      <p class="okno-podtytul">Punktów do rozdania: <strong id="awans-punkty">0</strong></p>
+      <div id="awans-tresc"></div>
+      <button id="awans-zamknij">Gotowe</button>
+    </div>
+  </div>
+
+  <!-- ===== Ekran pomocy: co robią umiejętności ===== -->
+  <div id="pomoc-ekran">
+    <div class="okno">
+      <h1>Twoje umiejętności</h1>
+      <div id="pomoc-tresc"></div>
+      <button id="pomoc-zamknij">Zamknij</button>
+    </div>
+  </div>
+
+  <!-- Kolejność ładowania: liczby → dane → silnik → interfejs → start -->
+  <script src="js/config.js"></script>
+  <script src="js/data/statusy.js"></script>
+  <script src="js/data/umiejetnosci.js"></script>
+  <script src="js/data/klasy.js"></script>
+  <script src="js/data/zywioly.js"></script>
+  <script src="js/data/wrogowie.js"></script>
+  <script src="js/data/bestie.js"></script>
+  <script src="js/data/przedmioty.js"></script>
+  <script src="js/data/premium.js"></script>
+  <script src="js/data/drzewka.js"></script>
+  <script src="js/data/artefakty.js"></script>
+  <script src="js/data/grafiki.js"></script>
+  <script src="js/data/lucznik.js"></script>
+  <script src="js/data/mag.js"></script>
+  <script src="js/data/druid.js"></script>
+  <script src="js/engine/postac.js"></script>
+  <script src="js/engine/drzewko.js"></script>
+  <script src="js/engine/bonusy.js"></script>
+  <script src="js/engine/zapis.js"></script>
+  <script src="js/engine/walka.js"></script>
+  <script src="js/sylwetki.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/ui_miasto.js"></script>
+  <script src="js/ui_drzewko.js"></script>
+  <script src="js/main.js"></script>
