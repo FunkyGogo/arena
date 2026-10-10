@@ -116,18 +116,23 @@ const Miasto = {
     { id: 'helm',        nazwa: 'Hełm',        strona: 'lewo',  gotowe: true },
     { id: 'pancerz',     nazwa: 'Napierśnik',  strona: 'lewo',  gotowe: true  },
     { id: 'nagolenniki', nazwa: 'Nagolenniki', strona: 'lewo',  gotowe: true },
+    { id: 'amulet',      nazwa: 'Amulet',      strona: 'lewo',  gotowe: true },
     { id: 'bron',        nazwa: 'Broń',        strona: 'prawo', gotowe: true  },
     { id: 'tarcza',      nazwa: 'Tarcza',      strona: 'prawo', gotowe: true },
-    { id: 'artefakt',    nazwa: 'Artefakt',    strona: 'prawo', gotowe: true  }
+    { id: 'pierscienL',  nazwa: 'Pierścień L', strona: 'prawo', gotowe: true },
+    { id: 'pierscienP',  nazwa: 'Pierścień P', strona: 'prawo', gotowe: true }
   ],
+
+  // Gniazda obsługiwane przez moduł Artefaktów, nie przez zwykły ekwipunek.
+  GNIAZDA_ARTEFAKTOW: ['amulet', 'pierscienL', 'pierscienP'],
 
   gniazdo: null,   // które gniazdo jest otwarte pod postacią
 
   // Co siedzi w gnieździe: przedmiot albo null.
   wGniezdzie(idGniazda) {
-    if (idGniazda === 'bron')     return Bohater.bron();
-    if (idGniazda === 'pancerz')  return Bohater.pancerz();
-    if (idGniazda === 'artefakt') return Artefakty.zalozony();
+    if (idGniazda === 'bron')    return Bohater.bron();
+    if (idGniazda === 'pancerz') return Bohater.pancerz();
+    if (this.GNIAZDA_ARTEFAKTOW.includes(idGniazda)) return Artefakty.wGniezdzie(idGniazda);
     return Bohater.czesc(idGniazda);   // helm, tarcza, nagolenniki
   },
 
@@ -138,7 +143,7 @@ const Miasto = {
     const gniazdoHtml = g => {
       const p = this.wGniezdzie(g.id);
       const ikona = p
-        ? (g.id === 'artefakt' ? UI.ikonaArtefaktu(p) : UI.ikonaPrzedmiotu(p))
+        ? (this.GNIAZDA_ARTEFAKTOW.includes(g.id) ? UI.ikonaArtefaktu(p) : UI.ikonaPrzedmiotu(p))
         : (g.gotowe ? '◻' : '🔒');
       return `
         <button class="gniazdo ${this.gniazdo === g.id ? 'wybrane' : ''} ${p ? '' : 'puste'} ${g.gotowe ? '' : 'niegotowe'}"
@@ -163,7 +168,7 @@ const Miasto = {
         <p class="zakladka-info">Kliknij gniazdo, żeby zobaczyć, co masz na to miejsce.</p>`}
 
       <div class="bohater-ekwipunek">
-        <span class="ekwip">🧪 Eliksiry: ${b.eliksiry}</span>
+        <span class="ekwip">🧪 Flakony: ${Bohater.razemEliksirow()}</span>
       </div>`;
   },
 
@@ -177,14 +182,41 @@ const Miasto = {
               </div>`;
     }
 
-    if (idGniazda === 'artefakt') {
-      const a = Artefakty.zalozony();
-      return `<div class="gniazdo-panel">
-                <h2 class="sekcja-tytul">Artefakt</h2>
-                <p class="zakladka-info">${a
-                  ? `${a.nazwa} — ${a.efekt}. Zmieniasz je u czarodzieja.`
-                  : 'Artefakty zdobywasz za bossów, zakładasz u czarodzieja.'}</p>
-              </div>`;
+    // Amulet i pierścienie zakłada się tu, na postaci — a nie, jak
+    // wcześniej, wyłącznie u czarodzieja. Zmiana jest darmowa.
+    if (this.GNIAZDA_ARTEFAKTOW.includes(idGniazda)) {
+      const typ = Artefakty.typGniazda(idGniazda);
+      const wGnie = Artefakty.wGniezdzie(idGniazda);
+      const moje = Artefakty.posiadane()
+        .map(id => ARTEFAKTY[id])
+        .filter(a => a && a.typ === typ);
+
+      const wiersze = moje.map(a => {
+        const tu = wGnie && wGnie.id === a.id;
+        const gdzieIndziej = Artefakty.gniazdoArtefaktu(a.id);
+        return `
+          <div class="oferta ${tu ? 'zalozony' : ''}">
+            <span class="oferta-ikona">${UI.ikonaArtefaktu(a)}</span>
+            <span class="oferta-tresc">
+              <strong>${a.nazwa}</strong>
+              <span>${a.efekt}</span>
+            </span>
+            ${tu
+              ? '<span class="oferta-kup wtorny">Na sobie</span>'
+              : `<button class="oferta-kup wtorny" onclick="Miasto.zalozArtefakt('${a.id}','${idGniazda}')">
+                   ${gdzieIndziej ? 'Przełóż' : 'Załóż'}
+                 </button>`}
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="gniazdo-panel">
+          <h2 class="sekcja-tytul">${g.nazwa} — co masz</h2>
+          ${wiersze || `<p class="zakladka-info">Nie masz jeszcze żadnego z tych przedmiotów.
+             ${typ === 'amulet' ? 'Amulety' : 'Pierścienie'} zdobywasz za bossów i kupujesz u czarodzieja.</p>`}
+          ${wGnie ? `<button class="oferta-kup sprzedaj" style="width:100%;margin-top:8px"
+                        onclick="Miasto.zdejmijArtefakt('${idGniazda}')">Zdejmij</button>` : ''}
+        </div>`;
     }
 
     const typ = idGniazda;   // 'bron' albo 'pancerz'
@@ -529,21 +561,32 @@ const Miasto = {
               </div>`;
     }).join('');
 
-    const pelnyPlecak = b.eliksiry >= e.maksWPlecaku;
-    const eliksirStac = b.zloto >= e.cena;
+    // Cztery rodzaje flakonów — każdy ma własny limit w plecaku.
+    const flakony = ELIKSIRY_KOLEJNOSC.map(id => {
+      const el = ELIKSIRY[id];
+      const mam = Bohater.ileEliksirow(id);
+      const pelno = mam >= el.maks;
+      const stac = b.zloto >= el.cena;
+
+      return `
+        <div class="oferta ${pelno || !stac ? 'niestac' : ''}">
+          <span class="oferta-ikona">${el.ikona}</span>
+          <span class="oferta-tresc">
+            <strong>${el.nazwa} (masz ${mam}/${el.maks})</strong>
+            <span>${el.opis}</span>
+          </span>
+          <button class="oferta-kup" ${pelno || !stac ? 'disabled' : ''}
+                  onclick="Miasto.kupEliksir('${id}')">🪙 ${el.cena}</button>
+        </div>`;
+    }).join('');
 
     this.el.panelTresc.innerHTML = `
       <p class="panel-opis">Handlarz rozkłada towar na kocu. Nowy sprzęt zakładasz od razu.</p>
       ${wiersze}
-      <div class="oferta ${pelnyPlecak || !eliksirStac ? 'niestac' : ''}">
-        <span class="oferta-ikona">🧪</span>
-        <span class="oferta-tresc">
-          <strong>Mały eliksir (masz ${b.eliksiry}/${e.maksWPlecaku})</strong>
-          <span>Leczy ${Math.round(e.leczenieProcentMaxHp * 100)}% HP — działa też w trakcie walki</span>
-        </span>
-        <button class="oferta-kup" ${pelnyPlecak || !eliksirStac ? 'disabled' : ''}
-                onclick="Miasto.kupEliksir()">🪙 ${e.cena}</button>
-      </div>
+      <h2 class="sekcja-tytul">Flakony</h2>
+      <p class="panel-opis">Leczące pijesz, ogniste i jad rzucasz w przeciwnika.
+        W walce wybierasz, którego użyć.</p>
+      ${flakony}
       ${this.sekcjaPremium()}`;
   },
 
@@ -602,12 +645,30 @@ const Miasto = {
   },
 
   kup(idPrzedmiotu)   { if (Bohater.kup(idPrzedmiotu)) this.odswiezPanel('sklep'); },
+  zalozArtefakt(id, gniazdo) {
+    if (!Artefakty.zaloz(id, gniazdo)) return;
+    Zapis.zapisz();
+    this.odswiezPoArtefakcie();
+  },
+
+  zdejmijArtefakt(gniazdo) {
+    Bohater.stan[gniazdo] = null;
+    Zapis.zapisz();
+    this.odswiezPoArtefakcie();
+  },
+
+  // Artefakty zmienia sie w dwoch miejscach — na postaci i u czarodzieja.
+  odswiezPoArtefakcie() {
+    if (this.otwartyPanel === 'czarodziej') this.odswiezPanel('czarodziej');
+    else this.panel_bohater();
+  },
+
   zaloz(idPrzedmiotu) {
     if (!Bohater.zaloz(idPrzedmiotu)) return;
     Zapis.zapisz();
     this.odswiezPanel(this.otwartyPanel || 'sklep');   // dziala i w sklepie, i w ekranie bohatera
   },
-  kupEliksir()        { if (Bohater.kupEliksir()) this.odswiezPanel('sklep'); },
+  kupEliksir(id)      { if (Bohater.kupEliksir(id)) this.odswiezPanel('sklep'); },
 
   // ---------- PLAC TRENINGOWY ----------
 
@@ -891,15 +952,13 @@ const Miasto = {
   // ---------- CZARODZIEJ (artefakty) ----------
 
   panel_czarodziej() {
-    const zalozony = Bohater.stan.artefakt;
-
     const wiersz = (a, kontekst) => {
       const mamy = Artefakty.ma(a.id);
-      const naSobie = zalozony === a.id;
+      const gniazdo = Artefakty.gniazdoArtefaktu(a.id);   // null = nie na sobie
 
       let przyciski;
-      if (naSobie) {
-        przyciski = `<button class="oferta-kup wtorny" onclick="Miasto.zdejmijArtefakt()">Zdejmij</button>`;
+      if (gniazdo) {
+        przyciski = `<button class="oferta-kup wtorny" onclick="Miasto.zdejmijArtefakt('${gniazdo}')">Zdejmij</button>`;
       } else if (mamy) {
         przyciski = `<button class="oferta-kup" onclick="Miasto.zalozArtefakt('${a.id}')">Załóż</button>`;
       } else if (kontekst === 'sklep') {
@@ -910,10 +969,14 @@ const Miasto = {
         przyciski = '';
       }
 
-      return `<div class="oferta artefakt r-${a.rzadkosc} ${naSobie ? 'zalozony' : ''}">
+      const gdzie = gniazdo === 'amulet' ? 'na szyi'
+                  : gniazdo === 'pierscienL' ? 'na lewej ręce'
+                  : gniazdo === 'pierscienP' ? 'na prawej ręce' : '';
+
+      return `<div class="oferta artefakt r-${a.rzadkosc} ${gniazdo ? 'zalozony' : ''}">
                 <span class="oferta-ikona">${UI.ikonaArtefaktu(a)}</span>
                 <span class="oferta-tresc">
-                  <strong>${a.nazwa} <span class="rzadkosc">${a.rzadkosc === 'rzadki' ? 'rzadki' : 'zwykły'}</span></strong>
+                  <strong>${a.nazwa} <span class="rzadkosc">${a.typ === 'pierscien' ? 'pierścień' : 'amulet'}${gdzie ? ' · ' + gdzie : ''}</span></strong>
                   <span class="artefakt-efekt">${a.efekt}</span>
                   <span>${a.opis}</span>
                 </span>
@@ -1031,7 +1094,5 @@ const Miasto = {
     Gra.walcz(idBestii);
   },
 
-  kupArtefakt(id)   { if (Artefakty.kup(id)) this.odswiezPanel('czarodziej'); },
-  zalozArtefakt(id) { if (Artefakty.zaloz(id)) this.odswiezPanel('czarodziej'); },
-  zdejmijArtefakt() { Artefakty.zaloz(null); this.odswiezPanel('czarodziej'); }
+  kupArtefakt(id) { if (Artefakty.kup(id)) this.odswiezPanel('czarodziej'); }
 };

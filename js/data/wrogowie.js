@@ -76,6 +76,10 @@ const WROGOWIE = {
     pancerz: { nazwa: 'Bycza skóra', obrona: 1 },
     ai: { typ: 'szarza', coIleTur: 3 },
     artefakty: { amuletLwa: 0.35 },
+    // Po pierwszym pokonaniu gracz wybiera JEDNA z trzech rzeczy.
+    // Lista jest filtrowana pod klase, wiec luk nie trafi do maga,
+    // a tarcza do lucznika. Pokazujemy pierwsze trzy, ktore pasuja.
+    lupDoWyboru: ['brazowyHelm', 'zelazneNagolenniki', 'okutaTarcza', 'skorzanaUprzaz', 'pierscienGniewu'],
     nagroda: { zloto: 40, xp: 90, materialy: { skoraByka: 2, skora: 2 } }
   },
 
@@ -138,6 +142,10 @@ const WROGOWIE = {
     pancerz: { nazwa: 'Kolczuga', obrona: 1 },
     ai: { typ: 'szal', progSzalu: 0.40, mnoznikObrazen: 1.5, mnoznikObrony: 0.5 },
     artefakty: { pierscienGniewu: 0.60 },
+    // Po pierwszym pokonaniu gracz wybiera JEDNA z trzech rzeczy.
+    // Lista jest filtrowana pod klase, wiec luk nie trafi do maga,
+    // a tarcza do lucznika. Pokazujemy pierwsze trzy, ktore pasuja.
+    lupDoWyboru: ['napiersnikZCwiekami', 'wloczniaZKapui', 'lukZKapui', 'kosturZKapui', 'kielWilka'],
     nagroda: { zloto: 70, xp: 190, materialy: { stalLudusu: 2, brazowyZlom: 1 } }
   },
 
@@ -207,6 +215,10 @@ const WROGOWIE = {
       faza2: { obrona: 5, zrecznosc: 8, mnoznikObrazen: 1.3, szansaGardy: 0 }
     },
     artefakty: { talizmanFortuny: 1.0 },
+    // Po pierwszym pokonaniu gracz wybiera JEDNA z trzech rzeczy.
+    // Lista jest filtrowana pod klase, wiec luk nie trafi do maga,
+    // a tarcza do lucznika. Pokazujemy pierwsze trzy, ktore pasuja.
+    lupDoWyboru: ['gladiusLudusu', 'loricaZByczejSkory', 'lukZHydry', 'kosturZSercaChimery', 'talizmanFortuny'],
     nagroda: { zloto: 150, xp: 350, materialy: { przepustkaDoGalii: 1, stalLudusu: 2 } }
   }
 };

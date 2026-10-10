@@ -13,12 +13,15 @@ const Bonusy = {
   wszystkie() {
     const suma = Drzewko.modyfikatory();
 
-    const art = Artefakty.zalozony();
-    if (art && art.mod) {
+    // Trzy gniazda naraz: amulet i dwa pierścienie. Ich modyfikatory
+    // się sumują, więc dwa takie same pierścienie podwajają efekt —
+    // dlatego tego samego nie da się założyć dwa razy (patrz Artefakty.zaloz).
+    Artefakty.zalozone().forEach(art => {
+      if (!art || !art.mod) return;
       Object.entries(art.mod).forEach(([klucz, wartosc]) => {
         suma[klucz] = (suma[klucz] || 0) + wartosc;
       });
-    }
+    });
     return suma;
   },
 
@@ -34,25 +37,65 @@ const Artefakty = {
 
   posiadane() { return Bohater.stan.artefakty || []; },
 
-  zalozony() {
-    const id = Bohater.stan.artefakt;
+  // Trzy gniazda: amulet, pierścień na lewej i na prawej ręce.
+  GNIAZDA: ['amulet', 'pierscienL', 'pierscienP'],
+
+  // Jakiego typu artefakt wchodzi do danego gniazda.
+  typGniazda(gniazdo) { return gniazdo === 'amulet' ? 'amulet' : 'pierscien'; },
+
+  wGniezdzie(gniazdo) {
+    const id = Bohater.stan[gniazdo];
     return id ? ARTEFAKTY[id] : null;
   },
 
+  zalozone() {
+    return this.GNIAZDA.map(g => this.wGniezdzie(g)).filter(Boolean);
+  },
+
+  // Zgodność ze starym kodem: „ten założony" to amulet.
+  zalozony() { return this.wGniezdzie('amulet'); },
+
   ma(id) { return this.posiadane().includes(id); },
 
+  // W którym gnieździe siedzi dany artefakt (albo null).
+  gniazdoArtefaktu(id) {
+    return this.GNIAZDA.find(g => Bohater.stan[g] === id) || null;
+  },
+
   // Zmiana artefaktu jest DARMOWA — design chce zachęcać do eksperymentów.
-  zaloz(id) {
-    if (id !== null && !this.ma(id)) return false;
-    Bohater.stan.artefakt = id;
+  //  Ten sam przedmiot nie może siedzieć w dwóch gniazdach naraz, bo
+  //  modyfikatory się sumują i dwa identyczne pierścienie podwajałyby efekt.
+  zaloz(id, gniazdo) {
+    const a = id === null ? null : ARTEFAKTY[id];
+    if (id !== null && (!a || !this.ma(id))) return false;
+
+    const cel = gniazdo || (a ? (a.typ === 'pierscien' ? this.wolnePierscien() : 'amulet') : 'amulet');
+    if (a && this.typGniazda(cel) !== a.typ) return false;
+
+    if (a) {
+      const gdzieIndziej = this.gniazdoArtefaktu(id);
+      if (gdzieIndziej && gdzieIndziej !== cel) Bohater.stan[gdzieIndziej] = null;
+    }
+    Bohater.stan[cel] = id;
     return true;
+  },
+
+  // Pierwszy wolny palec, a jak oba zajęte — lewy.
+  wolnePierscien() {
+    return !Bohater.stan.pierscienL ? 'pierscienL'
+         : !Bohater.stan.pierscienP ? 'pierscienP'
+         : 'pierscienL';
   },
 
   dodaj(id) {
     if (!ARTEFAKTY[id]) return false;
     if (this.ma(id)) return false;            // duplikat trafia do skupu
     Bohater.stan.artefakty.push(id);
-    if (!Bohater.stan.artefakt) Bohater.stan.artefakt = id;   // pierwszy zakładamy sami
+    // Pierwszy artefakt danego rodzaju zakładamy sami — zeby gracz od razu
+    // zobaczyl, ze cos sie dzieje.
+    const a = ARTEFAKTY[id];
+    const gniazdo = a.typ === 'pierscien' ? this.wolnePierscien() : 'amulet';
+    if (!Bohater.stan[gniazdo]) Bohater.stan[gniazdo] = id;
     return true;
   },
 
@@ -76,7 +119,8 @@ const Artefakty = {
     if (!this.ma(id)) return false;
     Bohater.stan.zloto += this.cenaSkupu(id);
     Bohater.stan.artefakty = this.posiadane().filter(x => x !== id);
-    if (Bohater.stan.artefakt === id) Bohater.stan.artefakt = Bohater.stan.artefakty[0] || null;
+    // Sprzedany artefakt znika takze z palca albo z szyi.
+    this.GNIAZDA.forEach(g => { if (Bohater.stan[g] === id) Bohater.stan[g] = null; });
     return true;
   },
 

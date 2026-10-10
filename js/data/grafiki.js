@@ -105,7 +105,9 @@ const IKONY = {
     'kamienGospody',
     'kielWilka',
     'pierscienGniewu',
+    'obraczkaZZelaza',
     'skorzanyTalizman',
+    'sygnetLanisty',
     'talizmanFortuny',
     'znakMarsa'
   ],

@@ -29,7 +29,7 @@ const Bohater = {
       reklamy: null,    // dzienny licznik obejrzanych reklam
       materialy: {},
       esencje: {},
-      eliksiry: 0,
+      eliksiry: {},   // { maly: 2, ognisty: 1, ... }
 
       // Ekwipunek: co masz i co masz założone
       posiadane: [klasa.bronStartowa, klasa.pancerzStartowy],
@@ -42,7 +42,9 @@ const Bohater = {
 
       // Artefakty (trzeci, pasywny slot)
       artefakty: [],
-      artefakt: null,
+      amulet: null,
+      pierscienL: null,
+      pierscienP: null,
 
       // Drzewko umiejętności
       pu: CONFIG.drzewko.puNaStart,
@@ -198,10 +200,49 @@ const Bohater = {
 
   // ---------- eliksiry ----------
 
-  wypijEliksir() {
-    if (this.stan.eliksiry <= 0) return 0;
-    this.stan.eliksiry--;
-    return Math.round(this.maxHp() * CONFIG.ekonomia.eliksir.leczenieProcentMaxHp);
+  // Eliksiry liczymy osobno dla kazdego rodzaju: { maly: 2, ognisty: 1 }.
+  ileEliksirow(id) { return this.stan.eliksiry[id] || 0; },
+
+  wszystkieEliksiry() { return ELIKSIRY_KOLEJNOSC.filter(id => this.ileEliksirow(id) > 0); },
+
+  razemEliksirow() {
+    return ELIKSIRY_KOLEJNOSC.reduce((s, id) => s + this.ileEliksirow(id), 0);
+  },
+
+  // Zuzywa sztuke i oddaje definicje, zeby silnik wiedzial, co zrobic.
+  zuzyjEliksir(id) {
+    if (this.ileEliksirow(id) <= 0) return null;
+    this.stan.eliksiry[id]--;
+    return ELIKSIRY[id];
+  },
+
+  // ---------- łup do wyboru po bossie ----------
+  //  Boss daje JEDNO z trzech, i to tylko przy pierwszym pokonaniu.
+  //  Lista z karty wroga jest filtrowana: odpada to, co już masz,
+  //  i to, czego Twoja klasa nie założy (łuk u maga, tarcza u łucznika).
+
+  rzeczDoWyboru(id) { return PRZEDMIOTY[id] || ARTEFAKTY[id] || null; },
+
+  czyPasujeLup(id) {
+    const r = this.rzeczDoWyboru(id);
+    if (!r) return false;
+    if (ARTEFAKTY[id]) return !Artefakty.ma(id);
+    return !this.ma(id) && this.czyPasuje(r);
+  },
+
+  lupDoWyboru(wrog) {
+    if (!wrog.lupDoWyboru) return null;
+    const pasujace = wrog.lupDoWyboru.filter(id => this.czyPasujeLup(id)).slice(0, 3);
+    return pasujace.length ? pasujace : null;
+  },
+
+  przyjmijLup(id) {
+    if (!this.czyPasujeLup(id)) return false;
+    if (ARTEFAKTY[id]) return Artefakty.dodaj(id);
+
+    this.stan.posiadane.push(id);
+    this.zalozJesliLepszy(id);
+    return true;
   },
 
   // ---------- plac treningowy ----------
@@ -405,12 +446,13 @@ const Bohater = {
     return true;
   },
 
-  kupEliksir() {
-    const e = CONFIG.ekonomia.eliksir;
-    if (this.stan.eliksiry >= e.maksWPlecaku) return false;
+  kupEliksir(id = 'maly') {
+    const e = ELIKSIRY[id];
+    if (!e) return false;
+    if (this.ileEliksirow(id) >= e.maks) return false;
     if (this.stan.zloto < e.cena) return false;
     this.stan.zloto -= e.cena;
-    this.stan.eliksiry++;
+    this.stan.eliksiry[id] = this.ileEliksirow(id) + 1;
     return true;
   },
 
@@ -492,7 +534,8 @@ const Bohater = {
 
   zapiszNagrode(wrog) {
     const n = wrog.nagroda;
-    const zloto = Math.round(n.zloto * CONFIG.ekonomia.mnoznikZlota);
+    // Sygnet lanisty i podobne bonusy doliczamy do nagrody z walki.
+    const zloto = Math.round(n.zloto * CONFIG.ekonomia.mnoznikZlota * (1 + Bonusy.mod('bonusZlota')));
     this.stan.zloto += zloto;
 
     Object.entries(n.materialy || {}).forEach(([idM, ile]) => {
@@ -512,6 +555,10 @@ const Bohater = {
     let klejnoty = 0;
     if (!this.stan.pokonani.length) klejnoty += KLEJNOTY_ZA.pierwszeZwyciestwo;
 
+    // Lup do wyboru tylko za PIERWSZE pokonanie — liczymy, zanim
+    // dopiszemy wroga do pokonanych.
+    const wybor = this.stan.pokonani.includes(wrog.id) ? null : this.lupDoWyboru(wrog);
+
     let bonusPU = 0;
     if (!this.stan.pokonani.includes(wrog.id)) {
       this.stan.pokonani.push(wrog.id);
@@ -526,7 +573,7 @@ const Bohater = {
       this.stan.najwyzszaRanga = Math.min(dlugoscDrabiny, wrog.ranga + 1);
     }
 
-    return { zloto: zloto, xp: n.xp, klejnoty: klejnoty, materialy: n.materialy || {},
+    return { zloto: zloto, xp: n.xp, klejnoty: klejnoty, wybor: wybor, materialy: n.materialy || {},
              esencje: n.esencje || {},
              awanse: awanse, bonusPU: bonusPU, artefakt: artefakt };
   },

@@ -63,7 +63,9 @@ const Zapis = {
 
     if (b.materialy === undefined) b.materialy = {};
     if (b.pokonani === undefined) b.pokonani = [];
-    if (b.eliksiry === undefined) b.eliksiry = 0;
+    // Stare zapisy mialy jedna liczbe eliksirow — to byly male eliksiry.
+    if (b.eliksiry === undefined) b.eliksiry = {};
+    if (typeof b.eliksiry === 'number') b.eliksiry = b.eliksiry > 0 ? { maly: b.eliksiry } : {};
     if (b.ulepszenieBroni === undefined) b.ulepszenieBroni = 0;
     if (b.posiadane === undefined) b.posiadane = [klasa.bronStartowa, klasa.pancerzStartowy];
     if (b.bron === undefined || !PRZEDMIOTY[b.bron]) b.bron = klasa.bronStartowa;
@@ -71,7 +73,17 @@ const Zapis = {
     if (b.czasOstatniejRegeneracji === undefined) b.czasOstatniejRegeneracji = Date.now();
     if (b.esencje === undefined) b.esencje = {};
     if (b.artefakty === undefined) b.artefakty = [];
-    if (b.artefakt === undefined) b.artefakt = null;
+    // Stare zapisy mialy jeden slot artefaktu — przenosimy go
+    // do wlasciwego gniazda po typie przedmiotu.
+    if (b.amulet === undefined)     b.amulet = null;
+    if (b.pierscienL === undefined) b.pierscienL = null;
+    if (b.pierscienP === undefined) b.pierscienP = null;
+    if (b.artefakt) {
+      const a = ARTEFAKTY[b.artefakt];
+      if (a && a.typ === 'pierscien') { if (!b.pierscienL) b.pierscienL = b.artefakt; }
+      else if (!b.amulet) b.amulet = b.artefakt;
+      delete b.artefakt;
+    }
     if (b.pu === undefined) b.pu = CONFIG.drzewko.puNaStart;
     if (b.wezly === undefined) b.wezly = {};
     if (b.sloty === undefined) b.sloty = [null, null, null, null];

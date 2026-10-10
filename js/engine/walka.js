@@ -342,7 +342,7 @@ const Walka = {
     UI.odswiez();
   },
 
-  akcjaGracza(idUmiejetnosci) {
+  akcjaGracza(idUmiejetnosci, wariant) {
     if (!this.stan || this.stan.koniec || !this.stan.czekamNaGracza) return;
 
     const um = UMIEJETNOSCI[idUmiejetnosci];
@@ -355,7 +355,7 @@ const Walka = {
     this.zaplac(this.stan.gracz, um);
     this.zapiszZuzycie(this.stan.gracz, um);
 
-    this.wykonajAkcje(this.stan.gracz, this.cel(), um);
+    this.wykonajAkcje(this.stan.gracz, this.cel(), um, wariant);
     this.obrazeniaObszarowe(this.stan.gracz, this.cel(), um);
 
     UI.odswiez();
@@ -652,7 +652,7 @@ const Walka = {
 
   // ---------- rozliczanie akcji ----------
 
-  wykonajAkcje(wykonawca, cel, um) {
+  wykonajAkcje(wykonawca, cel, um, wariant) {
     switch (um.typ) {
       case 'atak':
       case 'finiszer':  this.wykonajAtak(wykonawca, cel, um); break;
@@ -664,7 +664,7 @@ const Walka = {
       case 'ukrycie':
       case 'postawa':   this.wykonajPostawe(wykonawca, um); break;
       case 'klatwa':    this.wykonajKlatwe(wykonawca, cel, um); break;
-      case 'eliksir':   this.wykonajEliksir(wykonawca); break;
+      case 'eliksir':   this.wykonajEliksir(wykonawca, wariant); break;
       case 'odskok':    this.wykonajOdskok(wykonawca, cel, um); break;
       case 'salwa':     this.wykonajSalwe(wykonawca, cel, um); break;
       case 'przyzwanie':this.wykonajPrzyzwanie(wykonawca, um); break;
@@ -1223,10 +1223,29 @@ const Walka = {
       l.turyDzialania + Bonusy.mod('turyTrucizny'), l.maksStackow);
   },
 
-  wykonajEliksir(postac) {
-    const ile = Bohater.wypijEliksir();
-    if (ile <= 0) return;
-    this.ulecz(postac, ile, 'Wypijasz eliksir');
+  // Eliksiry: leczące pijesz, ogniste i jad rzucasz we wroga,
+  // wzmacniające nakładają status na Ciebie.
+  wykonajEliksir(postac, idEliksiru) {
+    const e = Bohater.zuzyjEliksir(idEliksiru || 'maly');
+    if (!e) return;
+
+    if (e.dzialanie === 'leczenie') {
+      this.ulecz(postac, Math.round(postac.maxHp * e.procentMaxHp), `Wypijasz: ${e.nazwa}`);
+      return;
+    }
+
+    if (e.dzialanie === 'wzmocnienie') {
+      UI.dziennik(`${e.nazwa} — ${STATUSY[e.status].opisKrotki.toLowerCase()}.`, 'status');
+      this.nalozStatus(postac, e.status, e.moc, e.tury);
+      return;
+    }
+
+    // 'status' — flakon leci w przeciwnika.
+    const cel = this.cel();
+    if (!cel || cel.hp <= 0) return;
+    UI.poza(postac, 'atak', CONFIG.ui.czasAtakuMs);
+    UI.dziennik(`${e.nazwa} rozbija się o ${cel.nazwa}.`, 'status');
+    this.nalozStatus(cel, e.status, e.moc, e.tury);
   },
 
   ulecz(postac, ile, powod) {
@@ -1493,7 +1512,7 @@ const Walka = {
 
   dlaczegoNieMozna(postac, um) {
     if (um.typ === 'eliksir') {
-      return Bohater.stan.eliksiry > 0 ? null : 'Nie masz już eliksirów.';
+      return Bohater.razemEliksirow() > 0 ? null : 'Nie masz już eliksirów.';
     }
 
     const l = this.liczbyDla(postac, um);

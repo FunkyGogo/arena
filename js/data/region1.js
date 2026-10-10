@@ -78,6 +78,10 @@ const WROGOWIE_R1 = {
     bron: { nazwa: 'Bicz nadzorcy', obrazenia: 3 },
     pancerz: { nazwa: 'Kaftan z ćwiekami', obrona: 2 },
     ai: { typ: 'bicz', szansaBicza: 0.35 },
+    // Po pierwszym pokonaniu gracz wybiera JEDNA z trzech rzeczy.
+    // Lista jest filtrowana pod klase, wiec luk nie trafi do maga,
+    // a tarcza do lucznika. Pokazujemy pierwsze trzy, ktore pasuja.
+    lupDoWyboru: ['skorzanyHelm', 'lekkaTarcza', 'skorzaneNagolenniki', 'skorzanaUprzaz'],
     nagroda: { zloto: 25, xp: 40, materialy: { zelaznyZlom: 3 } }
   }
 };

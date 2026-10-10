@@ -14,7 +14,7 @@ const ARTEFAKTY = {
   // ---------- zwykłe (C) ----------
 
   amuletLwa: {
-    id: 'amuletLwa', nazwa: 'Amulet Lwa', ikona: '🦁', rzadkosc: 'zwykly',
+    id: 'amuletLwa', nazwa: 'Amulet Lwa', ikona: '🦁', rzadkosc: 'zwykly', typ: 'amulet',
     opis: 'Kieł lwa oprawiony w brąz. Uczy szukać miękkich miejsc.',
     efekt: '+8% szansy na krytyka',
     dlaKogo: 'Zabójca',
@@ -23,7 +23,7 @@ const ARTEFAKTY = {
   },
 
   pierscienGniewu: {
-    id: 'pierscienGniewu', nazwa: 'Pierścień Gniewu', ikona: '💢', rzadkosc: 'zwykly',
+    id: 'pierscienGniewu', nazwa: 'Pierścień Gniewu', ikona: '💢', rzadkosc: 'zwykly', typ: 'pierscien',
     opis: 'Im bliżej śmierci, tym jaśniej się żarzy.',
     efekt: 'Obrażenia rosną, im niżej masz HP (do +25%)',
     dlaKogo: 'Berserker',
@@ -32,7 +32,7 @@ const ARTEFAKTY = {
   },
 
   znakMarsa: {
-    id: 'znakMarsa', nazwa: 'Znak Marsa', ikona: '⚔', rzadkosc: 'zwykly',
+    id: 'znakMarsa', nazwa: 'Znak Marsa', ikona: '⚔', rzadkosc: 'zwykly', typ: 'amulet',
     opis: 'Blaszka z wizerunkiem boga wojny. Uczy oddawać cios.',
     efekt: '15% szansy na kontrę po otrzymaniu ciosu',
     dlaKogo: 'Wojownik',
@@ -41,7 +41,7 @@ const ARTEFAKTY = {
   },
 
   kielWilka: {
-    id: 'kielWilka', nazwa: 'Kieł wilka', ikona: '🐺', rzadkosc: 'zwykly',
+    id: 'kielWilka', nazwa: 'Kieł wilka', ikona: '🐺', rzadkosc: 'zwykly', typ: 'amulet',
     opis: 'Wilk nie ostrzega. Po prostu gryzie.',
     efekt: 'Pierwszy cios w walce zadaje +60% obrażeń',
     dlaKogo: 'Zabójca, Berserker',
@@ -50,7 +50,7 @@ const ARTEFAKTY = {
   },
 
   skorzanyTalizman: {
-    id: 'skorzanyTalizman', nazwa: 'Skórzany talizman', ikona: '🧿', rzadkosc: 'zwykly',
+    id: 'skorzanyTalizman', nazwa: 'Skórzany talizman', ikona: '🧿', rzadkosc: 'zwykly', typ: 'amulet',
     opis: 'Zwykły rzemyk z węzłem. Podobno nosił go ktoś, kto przeżył.',
     efekt: '−5% otrzymywanych obrażeń i +8 maksymalnego HP',
     dlaKogo: 'Każdy kruchy',
@@ -61,7 +61,7 @@ const ARTEFAKTY = {
   // ---------- rzadkie (R) ----------
 
   talizmanFortuny: {
-    id: 'talizmanFortuny', nazwa: 'Talizman Fortuny', ikona: '🍀', rzadkosc: 'rzadki',
+    id: 'talizmanFortuny', nazwa: 'Talizman Fortuny', ikona: '🍀', rzadkosc: 'rzadki', typ: 'amulet',
     opis: 'Fortuna sprzyja odważnym. Raz.',
     efekt: 'Raz na walkę przeżywasz śmiertelny cios z 1 HP',
     dlaKogo: 'Każdy',
@@ -70,7 +70,7 @@ const ARTEFAKTY = {
   },
 
   amuletKrwiopijcy: {
-    id: 'amuletKrwiopijcy', nazwa: 'Amulet krwiopijcy', ikona: '🩸', rzadkosc: 'rzadki',
+    id: 'amuletKrwiopijcy', nazwa: 'Amulet krwiopijcy', ikona: '🩸', rzadkosc: 'rzadki', typ: 'amulet',
     opis: 'Ciepły w dotyku, choć nikt go nie grzał.',
     efekt: 'Leczysz 8% zadanych obrażeń',
     dlaKogo: 'Berserker, agresywne buildy',
@@ -79,12 +79,34 @@ const ARTEFAKTY = {
   },
 
   kamienGospody: {
-    id: 'kamienGospody', nazwa: 'Kamień gospody', ikona: '🏠', rzadkosc: 'rzadki',
+    id: 'kamienGospody', nazwa: 'Kamień gospody', ikona: '🏠', rzadkosc: 'rzadki', typ: 'pierscien',
     opis: 'Gładki otoczak z paleniska. Pachnie domem, którego nie masz.',
     efekt: 'Rany goją się o 40% szybciej poza walką',
     dlaKogo: 'Każdy — ulga w modelu na wyczerpanie',
     zDropu: true,
     mod: { przyspieszenieRegeneracji: 0.40 }
+  },
+
+  // ---------- pierścienie dołożone pod drugie gniazdo ----------
+  //  Dwa gniazda na pierścienie potrzebują czegoś do wyboru. Oba są
+  //  celowo skromne — mają uzupełniać build, nie przebijać amuletów.
+
+  sygnetLanisty: {
+    id: 'sygnetLanisty', nazwa: 'Sygnet lanisty', ikona: '💍', rzadkosc: 'zwykly', typ: 'pierscien',
+    opis: 'Pieczęć właściciela ludusu. Nosisz cudze nazwisko, ale otwiera drzwi.',
+    efekt: '+10% złota z walk',
+    dlaKogo: 'Każdy — szybciej uzbierasz na sprzęt',
+    cena: 150,
+    mod: { bonusZlota: 0.10 }
+  },
+
+  obraczkaZZelaza: {
+    id: 'obraczkaZZelaza', nazwa: 'Obrączka z żelaza', ikona: '⭕', rzadkosc: 'zwykly', typ: 'pierscien',
+    opis: 'Zdjęta z palca kogoś, kto już jej nie potrzebował.',
+    efekt: '+6 maksymalnego HP i −3% otrzymywanych obrażeń',
+    dlaKogo: 'Każdy — zwykła poduszka bezpieczeństwa',
+    cena: 160,
+    mod: { maxHp: 6, redukcjaObrazenProcent: 0.03 }
   }
 };
 

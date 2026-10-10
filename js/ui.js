@@ -265,8 +265,13 @@ const UI = {
       `<span class="akcja-uzycia"></span>`;
 
     b.addEventListener('click', () => {
+      // Przy kilku rodzajach eliksiru najpierw pytamy, który.
+      if (um.typ === 'eliksir' && Bohater.wszystkieEliksiry().length > 1) {
+        this.pokazWyborEliksiru(b);
+        return;
+      }
       this.stanZAkcji(um);
-      Walka.akcjaGracza(um.id);
+      Walka.akcjaGracza(um.id, um.typ === 'eliksir' ? Bohater.wszystkieEliksiry()[0] : undefined);
     });
     const pokaz = () => this.podpowiedz(um);
     b.addEventListener('mouseenter', pokaz);
@@ -452,7 +457,7 @@ const UI = {
       b.disabled = !s.czekamNaGracza || s.koniec || Walka.dlaczegoNieMozna(s.gracz, um) !== null;
 
       const zostalo = um.typ === 'eliksir'
-        ? Bohater.stan.eliksiry
+        ? Bohater.razemEliksirow()
         : Walka.pozostaleUzycia(s.gracz, um);
       const znacznik = b.querySelector('.akcja-uzycia');
       znacznik.textContent = zostalo === null ? '' : zostalo;
@@ -872,6 +877,9 @@ const UI = {
         ${n.bonusPU ? `<p class="awans-info">Za pokonanie bossa: +${n.bonusPU} punktu umiejętności.</p>` : ''}
         ${n.artefakt ? `<p class="artefakt-info">ARTEFAKT: ${UI.ikonaArtefaktu(ARTEFAKTY[n.artefakt])} ${ARTEFAKTY[n.artefakt].nazwa} — ${ARTEFAKTY[n.artefakt].efekt}</p>` : ''}`;
 
+      // Łup do wyboru po bossie: jedna z trzech rzeczy, raz.
+      if (n.wybor && n.wybor.length) this.rysujWyborLupu(n.wybor);
+
       // Podwojenie lupu reklama — tylko po wygranej i tylko raz na walke.
       if (n.zloto > 0 && Reklama.mozna('podwojLup')) {
         this.przyciskKonca(`📺 Podwój łup (+${n.zloto} złota)`, (zdarzenie) => {
@@ -940,6 +948,98 @@ const UI = {
       this.schowajEkranKonca();
       Gra.pokazMiasto();
     }, true);
+  },
+
+  // ---------- wybór eliksiru w walce ----------
+  //  Gdy w plecaku jest więcej niż jeden rodzaj, nad paskiem akcji
+  //  wyskakuje rządek flakonów. Dotknięcie wybiera i od razu używa.
+
+  pokazWyborEliksiru(przyciskPaska) {
+    this.schowajWyborEliksiru();
+
+    const rzad = document.createElement('div');
+    rzad.className = 'wybor-eliksiru';
+    rzad.innerHTML = Bohater.wszystkieEliksiry().map(id => {
+      const e = ELIKSIRY[id];
+      return `<button class="flakon" data-eliksir="${id}" title="${e.opis}">
+                <span class="flakon-ikona">${e.ikona}</span>
+                <span class="flakon-nazwa">${e.nazwa}</span>
+                <span class="flakon-ile">×${Bohater.ileEliksirow(id)}</span>
+              </button>`;
+    }).join('') + '<button class="flakon anuluj">Anuluj</button>';
+
+    rzad.querySelectorAll('.flakon').forEach(f => {
+      f.addEventListener('mouseenter', () => {
+        if (f.dataset.eliksir) this.podpowiedzEliksiru(ELIKSIRY[f.dataset.eliksir]);
+      });
+      f.addEventListener('click', () => {
+        const id = f.dataset.eliksir;
+        this.schowajWyborEliksiru();
+        if (!id) return;                       // Anuluj
+        this.stanZAkcji(UMIEJETNOSCI.eliksir);
+        Walka.akcjaGracza('eliksir', id);
+      });
+    });
+
+    // Rządek ląduje tuż nad paskiem akcji, czyli pod kciukiem.
+    this.el.pasek.parentElement.insertBefore(rzad, this.el.pasek);
+    this.wyborEliksiru = rzad;
+  },
+
+  schowajWyborEliksiru() {
+    if (this.wyborEliksiru) { this.wyborEliksiru.remove(); this.wyborEliksiru = null; }
+  },
+
+  podpowiedzEliksiru(e) {
+    this.el.podpowiedz.innerHTML =
+      `<strong>${e.ikona} ${e.nazwa}</strong> `
+      + `<span class="podpowiedz-meta">masz ${Bohater.ileEliksirow(e.id)}</span><br>${e.opis}`;
+  },
+
+  // ---------- łup do wyboru po bossie ----------
+  //  Trzy karty, wybierasz jedną. Po wyborze reszta gaśnie — decyzja
+  //  ma coś kosztować, inaczej to nie jest wybór.
+
+  rysujWyborLupu(lista) {
+    const opisRzeczy = r => {
+      if (r.efekt) return r.efekt;                               // artefakt
+      if (r.typ === 'bron') {
+        return `+${r.obrazenia} obrażeń`
+          + (r.bonusCelnosci ? `, +${Math.round(r.bonusCelnosci * 100)}% celności` : '')
+          + (r.bonusKrytyka  ? `, +${Math.round(r.bonusKrytyka * 100)}% krytyka` : '');
+      }
+      return `+${r.obrona} Obrony`;
+    };
+
+    const karty = lista.map(id => {
+      const r = Bohater.rzeczDoWyboru(id);
+      const ikona = ARTEFAKTY[id] ? UI.ikonaArtefaktu(r) : UI.ikonaPrzedmiotu(r);
+      return `
+        <button class="lup-karta" data-lup="${id}">
+          <span class="lup-ikona">${ikona}</span>
+          <strong>${r.nazwa}</strong>
+          <span class="lup-efekt">${opisRzeczy(r)}</span>
+        </button>`;
+    }).join('');
+
+    const blok = document.createElement('div');
+    blok.className = 'wybor-lupu';
+    blok.innerHTML = `<p class="wybor-tytul">Z łupu po bossie bierzesz <strong>jedną</strong> rzecz:</p>
+                      <div class="lup-karty">${karty}</div>`;
+    this.el.koncaLup.appendChild(blok);
+
+    blok.querySelectorAll('.lup-karta').forEach(karta => {
+      karta.addEventListener('click', () => {
+        if (blok.classList.contains('wybrano')) return;
+        if (!Bohater.przyjmijLup(karta.dataset.lup)) return;
+
+        blok.classList.add('wybrano');
+        karta.classList.add('wziete');
+        blok.querySelector('.wybor-tytul').innerHTML =
+          `Bierzesz: <strong>${Bohater.rzeczDoWyboru(karta.dataset.lup).nazwa}</strong>.`;
+        Zapis.zapisz();
+      });
+    });
   },
 
   // Przyciski "Rozdaj punkty" zostawaly na ekranie konca walki nawet po
