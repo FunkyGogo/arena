@@ -233,6 +233,7 @@ const UI = {
 
   schowajAwans() {
     this.el.ekranAwansu.classList.remove('widoczny');
+    this.odswiezPrzyciskiKonca();
     this.rysujPasekBohatera();
     Miasto.rysujNaglowek();
   },
@@ -531,10 +532,24 @@ const UI = {
         if (s.wrogowie.length > 1) miejsce.addEventListener('click', () => Walka.obierzCel(i));
         pojemnik.appendChild(miejsce);
 
-        this.stanyWrogow[i] = { stan: null, chwilowy: false, timer: null };
+        this.stanyWrogow[i] = { stan: null, idWroga: null, chwilowy: false, timer: null };
         if (this.grafikiWroga(w)) this.ustawStanWroga(i, 'postawa');
       });
     }
+
+    // Gdy nowa walka ma tyle samo przeciwnikow co poprzednia, pojemnik
+    // zostaje ten sam — a razem z nim zapamietany stan "postawa". Bez
+    // tego ustawStanWroga uznawalo, ze nic sie nie zmienilo, i na arenie
+    // wisiala sylwetka POPRZEDNIEGO wroga az do pierwszego ciosu.
+    s.wrogowie.forEach((w, i) => {
+      const zapis = this.stanyWrogow[i];
+      if (zapis && zapis.idWroga !== w.id) {
+        clearTimeout(zapis.timer);
+        zapis.stan = null;
+        zapis.chwilowy = false;
+        zapis.idWroga = w.id;
+      }
+    });
 
     s.wrogowie.forEach((w, i) => {
       const miejsce = pojemnik.children[i];
@@ -725,8 +740,38 @@ const UI = {
       if (def.stackowalny && s.stacki > 1) tekst += ` ×${s.stacki}`;
       chip.textContent = `${tekst} (${s.tury})`;
 
+      // Sama ikonka nic nie mowi — dotkniecie wypisuje w pasku podpowiedzi,
+      // co ten status robi i ile jeszcze potrwa.
+      chip.title = def.nazwa;
+      chip.addEventListener('click', () => this.podpowiedzStatusu(def, s));
+
       pojemnik.appendChild(chip);
     });
+  },
+
+  // Ile tur zostalo, po polsku.
+  turSlownie(tury) {
+    if (tury === 1) return 'jeszcze 1 tura';
+    if (tury >= 2 && tury <= 4) return `jeszcze ${tury} tury`;
+    return `jeszcze ${tury} tur`;
+  },
+
+  podpowiedzStatusu(def, s) {
+    const szczegoly = [];
+    if (def.modyfikatorObrony)     szczegoly.push(`Obrona −${s.moc}`);
+    if (def.modyfikatorAtaku)      szczegoly.push(`Atak −${s.moc}`);
+    if (def.modyfikatorZrecznosci) szczegoly.push(`Zręczność −${s.moc}`);
+    if (def.modyfikatorCelnosci)   szczegoly.push(`Celność −${s.moc}`);
+    if (def.obrazeniaNaTure)       szczegoly.push(`${s.moc * (s.stacki || 1)} obrażeń co turę`);
+    if (def.leczenieNaTure)        szczegoly.push(`${s.moc} HP co turę`);
+    if (def.stackowalny && s.stacki > 1) szczegoly.push(`nałożony ${s.stacki} razy`);
+
+    const rodzaj = def.rodzaj === 'oslabienie' ? 'Osłabienie' : 'Wzmocnienie';
+    this.el.podpowiedz.innerHTML =
+      `<strong>${def.ikona} ${def.nazwa}</strong> `
+      + `<span class="podpowiedz-meta">${rodzaj} · ${this.turSlownie(s.tury)}</span><br>`
+      + (def.opis || def.opisKrotki)
+      + (szczegoly.length ? ` <span class="podpowiedz-meta">(${szczegoly.join(', ')})</span>` : '');
   },
 
   // ---------- pływające liczby nad postaciami ----------
@@ -842,10 +887,12 @@ const UI = {
 
       // Po awansie masz dwie rzeczy do wydania — cechy i punkty umiejetnosci.
       // Oba prowadza wprost stad, zeby nie szukac ich w karcie bohatera.
-      if (n.awanse > 0) this.przyciskKonca('Rozdaj punkty cech', () => this.pokazAwans(), true);
+      if (n.awanse > 0) {
+        this.przyciskKonca('Rozdaj punkty cech', () => this.pokazAwans(), true).dataset.znika = 'cechy';
+      }
       if (Bohater.stan.pu > 0) {
         this.przyciskKonca(`Wydaj ${Bohater.stan.pu} pkt umiejętności`,
-                           () => EkranDrzewka.pokaz(), n.awanse === 0);
+                           () => EkranDrzewka.pokaz(), n.awanse === 0).dataset.znika = 'pu';
       }
       if (czempion) {
         this.el.koncaOpis.textContent =
@@ -895,12 +942,24 @@ const UI = {
     }, true);
   },
 
+  // Przyciski "Rozdaj punkty" zostawaly na ekranie konca walki nawet po
+  // wydaniu wszystkiego — wygladalo, jakby wciaz bylo co rozdawac.
+  // Wolane za kazdym razem, gdy gracz zamknie awans albo drzewko.
+  odswiezPrzyciskiKonca() {
+    const zostalo = { cechy: Bohater.stan.punktyDoRozdania, pu: Bohater.stan.pu };
+    this.el.koncaPrzyciski.querySelectorAll('[data-znika]').forEach(b => {
+      if (!zostalo[b.dataset.znika]) b.remove();
+      else if (b.dataset.znika === 'pu') b.textContent = `Wydaj ${zostalo.pu} pkt umiejętności`;
+    });
+  },
+
   przyciskKonca(tekst, akcja, glowny) {
     const b = document.createElement('button');
     b.className = glowny ? 'przycisk-glowny' : 'przycisk-poboczny';
     b.textContent = tekst;
     b.addEventListener('click', akcja);
     this.el.koncaPrzyciski.appendChild(b);
+    return b;
   },
 
   schowajEkranKonca() { this.el.ekranKonca.classList.remove('widoczny'); },

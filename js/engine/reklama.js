@@ -36,9 +36,12 @@ const Reklama = {
     return b.reklamy;
   },
 
+  // 0 w konfiguracji znaczy BEZ LIMITU.
   limit(miejsce) { return CONFIG.reklamy.limityDzienne[miejsce] || 0; },
+  bezLimitu(miejsce) { return this.limit(miejsce) === 0; },
 
   zostalo(miejsce) {
+    if (this.bezLimitu(miejsce)) return Infinity;
     const l = this.licznik();
     return Math.max(0, this.limit(miejsce) - (l.uzyte[miejsce] || 0));
   },
@@ -85,12 +88,13 @@ const Reklama = {
   wiersz(miejsce, tytul, opis, akcja) {
     const zostalo = this.zostalo(miejsce);
     const mozna = zostalo > 0;
+    const ile = this.bezLimitu(miejsce) ? 'ile chcesz' : `dziś zostało ${zostalo} z ${this.limit(miejsce)}`;
     return `
       <div class="oferta ${mozna ? '' : 'niestac'}">
         <span class="oferta-ikona">📺</span>
         <span class="oferta-tresc">
           <strong>${tytul}</strong>
-          <span>${opis} · dziś zostało ${zostalo} z ${this.limit(miejsce)}</span>
+          <span>${opis} · ${ile}</span>
         </span>
         ${mozna
           ? `<button class="oferta-kup reklama" onclick="${akcja}">Obejrzyj</button>`

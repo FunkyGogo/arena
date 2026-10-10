@@ -1750,7 +1750,7 @@ html, body {
   border-radius: 12px;
   border: 1px solid rgba(200,161,101,.25);
   overflow: hidden;
-  background-image: url("../assets/tla/mapa_kapua_male.jpg");
+  background-image: url("../assets/tla/mapa_kapua_male.jpg?v=202610101115");
   background-size: cover;
   background-position: center;
 }
@@ -2167,3 +2167,28 @@ html, body {
 }
 .reklama-ramka strong { letter-spacing: .08em; font-size: 13px; }
 .reklama-ramka span { font-size: 12px; color: var(--przygaszony); line-height: 1.45; }
+
+/* Plakietka nad budynkiem: ile zostalo do konca zlecenia albo treningu. */
+#miasto-budynki.mapa .budynek-plakietka {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #f6ead2;
+  background: rgba(24,18,14,.92);
+  border: 1px solid rgba(200,161,101,.55);
+  border-radius: 999px;
+  box-shadow: 0 2px 5px rgba(0,0,0,.5);
+}
+#miasto-budynki.mapa .budynek-plakietka.gotowe {
+  color: #0f1a0c;
+  background: linear-gradient(180deg, #9ad173, #5a8c38);
+  border-color: #c3eaa4;
+}
+
+/* Status da sie dotknac — wtedy pasek podpowiedzi mowi, co robi. */
+.status { cursor: pointer; }
+.status:active { filter: brightness(1.25); }

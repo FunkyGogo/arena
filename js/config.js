@@ -342,11 +342,14 @@ const CONFIG = {
   // --- Reklamy nagradzane (design/arena_ekonomia.md sekcja 2) ---
   //  Tylko dobrowolne, zawsze za nagrodę, z limitem dziennym, żeby
   //  były bonusem, a nie drugą pracą. Zero reklam między walkami.
+  //  Bez limitów: jeśli ktoś chce grać oglądając reklamy, to jego wybór
+  //  i nasz przychód. 0 = bez ograniczeń. Wpisz liczbę, gdyby kiedyś
+  //  trzeba było przykręcić któreś miejsce.
   reklamy: {
     limityDzienne: {
-      skrocTimer:  5,        // skrócenie treningu albo zlecenia
-      podwojLup:   3,        // podwojenie złota z wygranej walki
-      odpocznij:   2         // darmowe pełne leczenie w gospodzie
+      skrocTimer:  0,        // skrócenie treningu albo zlecenia
+      podwojLup:   0,        // podwojenie złota z wygranej walki
+      odpocznij:   0         // darmowe pełne leczenie w gospodzie
     }
   },
 

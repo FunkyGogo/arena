@@ -73,12 +73,21 @@ const Sylwetki = {
     return this.wczytaj(lekka).catch(() => this.wczytaj(sciezka));
   },
 
+  // Znacznik wersji doklejany do adresu grafiki. Bez niego przegladarka
+  // trzyma stary obrazek pod tym samym adresem i poprawiona poza nie
+  // dociera do gracza — tak wlasnie stalo sie z Murmillem.
+  // Ustawia go narzedzia/zbuduj_strone.js przy kazdej wysylce.
+  wersja() {
+    return (typeof window !== 'undefined' && window.WERSJA_GRAFIK)
+      ? '?v=' + window.WERSJA_GRAFIK : '';
+  },
+
   wczytaj(sciezka) {
     return new Promise((gotowe, blad) => {
       const obraz = new Image();
       obraz.onload = () => gotowe(obraz);
       obraz.onerror = () => blad(new Error('nie wczytano ' + sciezka));
-      obraz.src = sciezka;
+      obraz.src = sciezka + this.wersja();
     });
   },
 

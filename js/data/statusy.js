@@ -14,7 +14,8 @@ const STATUSY = {
     ikona: '💢',
     rodzaj: 'oslabienie',
     modyfikatorObrony: -1,           // -1 * moc = o tyle spada Obrona
-    opisKrotki: 'Obrona obniżona'
+    opisKrotki: 'Obrona obniżona',
+    opis: 'Pancerz pęknięty — ciosy przechodzą przez niego łatwiej, niż powinny.'
   },
 
   krwawienie: {
@@ -24,7 +25,8 @@ const STATUSY = {
     rodzaj: 'oslabienie',
     obrazeniaNaTure: true,           // rani co turę
     omijaPancerz: false,             // fizyczny DoT — pancerz częściowo chroni
-    opisKrotki: 'Krwawi'
+    opisKrotki: 'Krwawi',
+    opis: 'Rana nie chce się zamknąć. Ubywa HP na początku każdej tury.'
   },
 
   zatrucie: {
@@ -35,7 +37,8 @@ const STATUSY = {
     obrazeniaNaTure: true,
     omijaPancerz: true,              // jad omija pancerz — odpowiedź Zabójcy na opancerzonych
     stackowalny: true,               // kolejne użycia dokładają stacki
-    opisKrotki: 'Zatruty'
+    opisKrotki: 'Zatruty',
+    opis: 'Jad w krwiobiegu. Rani co turę i omija pancerz.'
   },
 
   oslabienieAtaku: {
@@ -44,7 +47,8 @@ const STATUSY = {
     ikona: '🕯',
     rodzaj: 'oslabienie',
     modyfikatorObrazen: -1,          // -1 * moc / 10 = o tyle procent slabsze ciosy
-    opisKrotki: 'Ciosy słabsze'
+    opisKrotki: 'Ciosy słabsze',
+    opis: 'Klątwa ciąży na ramionach — Twoje ciosy zadają mniej obrażeń.'
   },
 
   ogluszenie: {
@@ -53,7 +57,8 @@ const STATUSY = {
     ikona: '💫',
     rodzaj: 'oslabienie',
     pomijaTure: true,
-    opisKrotki: 'Tracisz turę'
+    opisKrotki: 'Tracisz turę',
+    opis: 'W głowie dzwoni. Tracisz najbliższą turę.'
   },
 
   spowolnienie: {
@@ -62,7 +67,8 @@ const STATUSY = {
     ikona: '🕸',
     rodzaj: 'oslabienie',
     modyfikatorZrecznosci: -1,
-    opisKrotki: 'Zręczność w dół'
+    opisKrotki: 'Zręczność w dół',
+    opis: 'Ruchy jak w wodzie — trudniej unikać i tracisz inicjatywę.'
   },
 
   oslabienieCelnosci: {
@@ -71,7 +77,8 @@ const STATUSY = {
     ikona: '📢',
     rodzaj: 'oslabienie',
     modyfikatorCelnosci: -0.05,      // -0.05 za punkt mocy
-    opisKrotki: 'Celność w dół'
+    opisKrotki: 'Celność w dół',
+    opis: 'W uszach piszczy. Częściej chybiasz.'
   },
 
   wychlodzenie: {
@@ -82,7 +89,8 @@ const STATUSY = {
     modyfikatorZrecznosci: -1,
     spowalniaDobieganie: true,       // mróz wydłuża drogę do Ciebie
     zywiol: 'lod',
-    opisKrotki: 'Zmarznięty'
+    opisKrotki: 'Zmarznięty',
+    opis: 'Mróz zbiera mięśnie. Ruszasz się wolniej.'
   },
 
   usidlenie: {
@@ -91,7 +99,8 @@ const STATUSY = {
     ikona: '🪤',
     rodzaj: 'oslabienie',
     blokujeDobieganie: true,         // nie skróci dystansu, póki trwa
-    opisKrotki: 'W sidłach'
+    opisKrotki: 'W sidłach',
+    opis: 'Nogi w pętli. Nie odskoczysz i trudniej się bronić.'
   },
 
   wziecieNaCel: {
@@ -100,7 +109,8 @@ const STATUSY = {
     ikona: '🎯',
     rodzaj: 'wzmocnienie',
     gwarantowanyKrytyk: true,
-    opisKrotki: 'Na muszce'
+    opisKrotki: 'Na muszce',
+    opis: 'Cel wzięty na muszkę — następny strzał trafi pewniej i mocniej.'
   },
 
   porazenie: {
@@ -108,7 +118,8 @@ const STATUSY = {
     rodzaj: 'oslabienie',
     modyfikatorCelnosci: -0.04,
     przewodziBlyskawice: true,
-    opisKrotki: 'Porażony'
+    opisKrotki: 'Porażony',
+    opis: 'Prąd skacze po mięśniach. Co jakiś czas tracisz kontrolę.'
   },
 
   // ---- wzmocnienia gracza ----
@@ -117,14 +128,16 @@ const STATUSY = {
     id: 'regeneracja', nazwa: 'Regeneracja', ikona: '💚',
     rodzaj: 'wzmocnienie',
     leczenieNaTure: true,
-    opisKrotki: 'Goi się'
+    opisKrotki: 'Goi się',
+    opis: 'Rany zasklepiają się same. Odzyskujesz HP na początku każdej tury.'
   },
 
   bariera: {
     id: 'bariera', nazwa: 'Lodowa zbroja', ikona: '🧊',
     rodzaj: 'wzmocnienie',
     pochlaniaObrazenia: true,
-    opisKrotki: 'Bariera'
+    opisKrotki: 'Bariera',
+    opis: 'Tafla lodu wokół ciała pochłania część każdego ciosu.'
   },
 
   ciernie: {
@@ -132,14 +145,16 @@ const STATUSY = {
     rodzaj: 'wzmocnienie',
     redukcjaObrazen: true,
     odbicieObrazen: true,
-    opisKrotki: 'Kolce'
+    opisKrotki: 'Kolce',
+    opis: 'Kto uderzy, sam się pokaleczy.'
   },
 
   kanalizowanie: {
     id: 'kanalizowanie', nazwa: 'Kanalizowanie', ikona: '🧘',
     rodzaj: 'wzmocnienie',
     redukcjaObrazen: true,
-    opisKrotki: 'Skupiony'
+    opisKrotki: 'Skupiony',
+    opis: 'Zbierasz moc. Następne zaklęcie będzie silniejsze.'
   },
 
   formaNiedzwiedzia: {
@@ -148,7 +163,8 @@ const STATUSY = {
     forma: true,
     modyfikatorObrony: -1,           // moc jest ujemna -> podnosi Obrone
     bonusObrazen: true,
-    opisKrotki: 'Niedźwiedź'
+    opisKrotki: 'Niedźwiedź',
+    opis: 'Postać niedźwiedzia: więcej HP i siły, mniej zręczności.'
   },
 
   formaWilka: {
@@ -158,7 +174,8 @@ const STATUSY = {
     modyfikatorZrecznosci: 1,
     bonusKrytyka: true,
     bonusObrazen: true,
-    opisKrotki: 'Wilk'
+    opisKrotki: 'Wilk',
+    opis: 'Postać wilka: szybszy i zwinniejszy, ale kruchszy.'
   },
 
   podpalenie: {
@@ -169,7 +186,8 @@ const STATUSY = {
     obrazeniaNaTure: true,
     omijaPancerz: true,
     zywiol: 'ogien',
-    opisKrotki: 'Płonie'
+    opisKrotki: 'Płonie',
+    opis: 'Płoniesz. Ogień rani co turę i omija pancerz.'
   },
 
   odslona: {
@@ -178,7 +196,8 @@ const STATUSY = {
     ikona: '🎲',
     rodzaj: 'oslabienie',
     modyfikatorObrony: 1,            // moc jest ujemna, więc to obniża Obronę
-    opisKrotki: 'Odsłonięty'
+    opisKrotki: 'Odsłonięty',
+    opis: 'Odsłona po zamachu — następny cios w Ciebie trafi mocniej.'
   },
 
   // ---- wzmocnienia (dobre dla tego, kto je ma) ----
@@ -189,7 +208,8 @@ const STATUSY = {
     ikona: '🧱',
     rodzaj: 'wzmocnienie',
     redukcjaObrazen: true,           // siłę bierze z pola moc (ułamek)
-    opisKrotki: 'Za tarczą'
+    opisKrotki: 'Za tarczą',
+    opis: 'Zza tarczy zbierasz dużo mniej obrażeń.'
   },
 
   niezlomnosc: {
@@ -199,7 +219,8 @@ const STATUSY = {
     rodzaj: 'wzmocnienie',
     redukcjaObrazen: true,
     odpornoscNaOgluszenie: true,
-    opisKrotki: 'Niezłomny'
+    opisKrotki: 'Niezłomny',
+    opis: 'Stoisz jak głaz: duża redukcja obrażeń i odporność na ogłuszenie.'
   },
 
 
@@ -210,7 +231,8 @@ const STATUSY = {
     rodzaj: 'wzmocnienie',
     gwarantowanyKrytyk: true,        // następny atak na pewno krytyczny
     unikNastepnego: true,            // następny cios wroga chybia
-    opisKrotki: 'W cieniu'
+    opisKrotki: 'W cieniu',
+    opis: 'Wtopiony w cień. Następny cios będzie pewnym krytykiem.'
   },
 
   riposta: {
@@ -220,6 +242,7 @@ const STATUSY = {
     rodzaj: 'wzmocnienie',
     unikNastepnego: true,
     kontraPoUniku: true,             // po uniku od razu kontrujesz
-    opisKrotki: 'Postawa kontry'
+    opisKrotki: 'Postawa kontry',
+    opis: 'Czekasz na ruch przeciwnika. Gdy uderzy, oddasz mu od razu.'
   }
 };

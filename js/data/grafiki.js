@@ -368,7 +368,7 @@ const GRAFIKI_WROGOW = {
     postawa:   'assets/postacie/wrogowie/aulus_wzor.jpg',
     atak:      'assets/postacie/wrogowie/aulus_atak.jpg',
     trafienie: 'assets/postacie/wrogowie/aulus_trafienie.jpg',
-    odbij: []
+    odbij: ['trafienie']   // zataczal sie w strone bohatera
   },
 
   kaplanka: {
@@ -479,7 +479,7 @@ const GRAFIKI_WROGOW = {
     trafienie: 'assets/postacie/wrogowie/murmillo_trafienie.jpg',
     // Wyjatek z sekcji 7: jego tozsamosc to obrona, wiec ma wlasna garde.
     garda:     'assets/postacie/wrogowie/murmillo_garda.jpg',
-    odbij: []
+    odbij: ['trafienie']   // zataczal sie w strone bohatera
   },
 
   vala: {

@@ -361,13 +361,55 @@ const Miasto = {
       b.title = otwarty ? bud.opis : `Otworzy się po pokonaniu ${bud.odblokowanePoRandze} rang`;
       b.innerHTML = `
         <span class="budynek-ikona">${UI.ikonaBudynku(bud)}</span>
-        <span class="budynek-etykieta">${bud.nazwa}${otwarty ? '' : ' 🔒'}</span>`;
+        <span class="budynek-etykieta">${bud.nazwa}${otwarty ? '' : ' 🔒'}</span>
+        ${otwarty ? this.plakietkaBudynku(bud.id) : ''}`;
 
       if (otwarty) b.addEventListener('click', () => this.wejdz(bud.id));
       this.el.budynki.appendChild(b);
     });
 
     this.el.budynki.appendChild(this.przyciskBohatera());
+    this.uruchomZegary();
+  },
+
+  // Plakietka nad budynkiem: ile zostało do końca, albo "gotowe".
+  // Dzięki temu widać stan zlecenia i treningu bez wchodzenia do środka.
+  plakietkaBudynku(idBudynku) {
+    if (idBudynku === 'zlecenia' && Bohater.stan.zlecenie) {
+      return Bohater.czyZlecenieGotowe()
+        ? '<span class="budynek-plakietka gotowe">Gotowe</span>'
+        : `<span class="budynek-plakietka" data-zegar="zlecenie">${this.czasSlownie(Bohater.minutDoKoncaZlecenia())}</span>`;
+    }
+    if (idBudynku === 'trening' && Bohater.stan.trening) {
+      return Bohater.czyTreningGotowy()
+        ? '<span class="budynek-plakietka gotowe">Gotowe</span>'
+        : `<span class="budynek-plakietka" data-zegar="trening">${this.czasSlownie(Bohater.minutDoKonca())}</span>`;
+    }
+    return '';
+  },
+
+  // Odliczanie w dół. Jeden wspólny timer na wszystkie plakietki;
+  // gdy coś się skończy, przerysowujemy mapę, żeby pokazać "Gotowe".
+  uruchomZegary() {
+    clearInterval(this.zegar);
+    if (!document.querySelector('[data-zegar]')) return;
+
+    this.zegar = setInterval(() => {
+      const plakietki = document.querySelectorAll('[data-zegar]');
+      if (!plakietki.length) { clearInterval(this.zegar); return; }
+
+      let skonczone = false;
+      plakietki.forEach(p => {
+        const minuty = p.dataset.zegar === 'zlecenie'
+          ? Bohater.minutDoKoncaZlecenia() : Bohater.minutDoKonca();
+        if (minuty <= 0) skonczone = true;
+        else p.textContent = this.czasSlownie(minuty);
+      });
+      if (skonczone) {
+        this.rysujBudynki();
+        if (this.otwartyPanel && this.otwartyPanel !== 'bohater') this.odswiezPanel(this.otwartyPanel);
+      }
+    }, 15000);
   },
 
   // Portret w rogu mapy — wejście do ekranu bohatera (jak awatar w mobilnych RPG).
@@ -407,6 +449,7 @@ const Miasto = {
 
     this['panel_' + idBudynku]();
     this.el.panel.classList.add('widoczny');
+    this.uruchomZegary();
   },
 
   zamknijPanel() {
@@ -419,6 +462,7 @@ const Miasto = {
     this['panel_' + idBudynku]();
     this.rysujNaglowek();
     Zapis.zapisz();                 // kazdy zakup i nocleg zapisany
+    this.uruchomZegary();
   },
 
   // ---------- GOSPODA ----------
@@ -605,7 +649,7 @@ const Miasto = {
       const stac = b.klejnoty >= cena;
       this.el.panelTresc.innerHTML = `
         <p class="panel-opis">Trenujesz <strong>${nazwa}</strong>.
-          Zostało <strong>${this.czasSlownie(zostalo)}</strong>.
+          Zostało <strong data-zegar="trening">${this.czasSlownie(zostalo)}</strong>.
           Możesz zamknąć grę — czas leci dalej.</p>
         <div class="oferta ${stac ? '' : 'niestac'}">
           <span class="oferta-ikona">💎</span>
@@ -689,7 +733,7 @@ const Miasto = {
 
       this.el.panelTresc.innerHTML = `
         <p class="panel-opis">W robocie: <strong>${wToku.nazwa}</strong>.
-          Zostało <strong>${this.czasSlownie(zostalo)}</strong>.
+          Zostało <strong data-zegar="zlecenie">${this.czasSlownie(zostalo)}</strong>.
           Możesz w tym czasie walczyć — czas leci sam.</p>
         <div class="oferta ${stac ? '' : 'niestac'}">
           <span class="oferta-ikona">💎</span>

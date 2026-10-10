@@ -37,6 +37,7 @@ const EkranDrzewka = {
 
   schowaj() {
     this.el.ekran.classList.remove('widoczny');
+    UI.odswiezPrzyciskiKonca();
     UI.zbudujPasek();
     Miasto.rysujNaglowek();
     Zapis.zapisz();
