@@ -279,18 +279,6 @@ const GRAFIKI_WROGOW = {
     trafienie: 'assets/postacie/wrogowie/straznikKopalni_trafienie.jpg',
     odbij: []
   },
-  straznikZbrojowni: {
-    postawa:   'assets/postacie/wrogowie/straznikKopalni_wzor.jpg',
-    atak:      'assets/postacie/wrogowie/straznikKopalni_atak.jpg',
-    trafienie: 'assets/postacie/wrogowie/straznikKopalni_trafienie.jpg',
-    odbij: []
-  },
-  straznikKoszar: {
-    postawa:   'assets/postacie/wrogowie/straznikKopalni_wzor.jpg',
-    atak:      'assets/postacie/wrogowie/straznikKopalni_atak.jpg',
-    trafienie: 'assets/postacie/wrogowie/straznikKopalni_trafienie.jpg',
-    odbij: []
-  },
   weteranBramy: {
     postawa:   'assets/postacie/wrogowie/weteranBramy_wzor.jpg',
     atak:      'assets/postacie/wrogowie/weteranBramy_atak.jpg',

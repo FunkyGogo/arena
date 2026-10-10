@@ -859,8 +859,9 @@ const UI = {
       this.el.koncaTytul.textContent = czempion ? 'CZEMPION POKONANY' : 'ZWYCIĘSTWO';
       this.el.koncaTytul.className = 'wygrana';
       const kogo = s.wataha ? WATAHY[s.wataha].nazwa : s.wrogowie[0].nazwa;
-      this.el.koncaOpis.textContent =
-        `${kogo} — pokonani w ${rundy}. Zostało Ci ${s.gracz.hp} z ${s.gracz.maxHp} HP.`;
+      this.el.koncaOpis.textContent = s.wPelniSil
+        ? `${kogo} — pokonani w ${rundy}. Opatrzyli Cię i wrócili do pracy: znów masz pełne ${Bohater.maxHp()} HP.`
+        : `${kogo} — pokonani w ${rundy}. Zostało Ci ${s.gracz.hp} z ${s.gracz.maxHp} HP.`;
 
       const materialy = Object.entries(n.materialy)
         .map(([k, ile]) => `<span class="lup">${UI.ikonaMaterialu(k, MATERIALY[k])} ${MATERIALY[k].nazwa} ×${ile}</span>`).join('')

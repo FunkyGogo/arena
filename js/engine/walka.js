@@ -1599,6 +1599,8 @@ const Walka = {
       if (uczta > 0) this.ulecz(this.stan.gracz, Math.round(this.stan.gracz.maxHp * uczta), 'Uczta');
 
       Bohater.stan.hp = this.stan.gracz.hp;
+      // W prologu nie ma się gdzie leczyć, więc po wygranej opatrują Cię sami.
+      this.stan.wPelniSil = Bohater.poWalcePrologu();
       Bohater.stan.czasOstatniejRegeneracji = Date.now();
       this.stan.nagroda = Bohater.zapiszNagrode(this.opisSpotkania());
 

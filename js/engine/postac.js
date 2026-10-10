@@ -583,6 +583,18 @@ const Bohater = {
   // Prolog konczy sie pokonaniem Nadzorcy — wtedy przenosimy bohatera
   // do Kapui i drabina zaczyna sie od nowa, juz w regionie 2.
   czyProlog()           { return (this.stan.region || 2) === 1; },
+
+  // W kamieniołomie nie ma gospody ani sklepu z eliksirami, więc HP
+  // przechodzące między walkami robiło z prologu ścianę. Po każdej
+  // wygranej wracasz do pełni sił — model na wyczerpanie wchodzi
+  // dopiero w Kapui, razem z gospodą, która go obsługuje.
+  poWalcePrologu() {
+    if (!this.czyProlog()) return false;
+    const brakowalo = this.maxHp() - this.stan.hp;
+    this.stan.hp = this.maxHp();
+    this.stan.czasOstatniejRegeneracji = Date.now();
+    return brakowalo > 0;
+  },
   czyPrologSkonczony()  { return this.czyPokonany('nadzorca'); },
 
   przejdzDoKapui() {
