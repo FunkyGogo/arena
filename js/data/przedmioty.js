@@ -17,9 +17,13 @@ const PRZEDMIOTY = {
     typ: 'bron', obrazenia: 2, startowa: true,
     opis: 'Ciężki i nieporęczny. Zamach boli obie strony.'
   },
+  // Zabójca ma najmniej HP w grze, więc jego broń startowa nie może być
+  // jeszcze słabsza od pozostałych — przy 1 obrażeniu wychodził gorszy
+  // od każdej innej klasy na obu osiach naraz. Krytyk niesie jego
+  // tożsamość od pierwszej tury, zamiast czekać na drzewko.
   paraSztyletow: {
     id: 'paraSztyletow', nazwa: 'Para sztyletów', ikona: '🔪',
-    typ: 'bron', obrazenia: 1, bonusKrytyka: 0.05, startowa: true,
+    typ: 'bron', obrazenia: 2, bonusKrytyka: 0.10, startowa: true,
     opis: 'Krótkie ostrza. Siły nie dodają, ale znajdują szpary.'
   },
 
