@@ -23,7 +23,8 @@ const SKALE_POZ = {
 // (zrobione skryptem narzedzia/zmniejsz.ps1).
 const TLA_WALKI = {
   domyslne: 'assets/tla/arena_kapua_B_male.jpg',   // region 2, jasne południe
-  czempion: 'assets/tla/arena_kapua_A_male.jpg'    // zmierzch i pochodnie — walki z czempionem
+  czempion: 'assets/tla/arena_kapua_A_male.jpg',   // zmierzch i pochodnie
+  kamieniolom: 'assets/tla/kamieniolom_male.jpg'   // prolog — kamieniołom
 };
 
 // To samo dla wrogów — ich pozy są mniej skrajne niż u bohatera.
@@ -265,6 +266,43 @@ const GRAFIKI_POSTACI = {
 // Blok pokazujemy efektem na postawie, śmierci nie generujemy.
 // Klucz = id wroga z js/data/wrogowie.js.
 const GRAFIKI_WROGOW = {
+
+  // ---------- region 1: kamieniołomy (prolog) ----------
+  //  Trzy pierwsze walki to ci sami umundurowani strażnicy — dzielą
+  //  jeden komplet grafik. Weteran i Nadzorca mają własne.
+
+  straznikKamieniolomu: {
+    postawa:   'assets/postacie/wrogowie/straznikKopalni_wzor.jpg',
+    atak:      'assets/postacie/wrogowie/straznikKopalni_atak.jpg',
+    trafienie: 'assets/postacie/wrogowie/straznikKopalni_trafienie.jpg',
+    odbij: []
+  },
+  straznikZbrojowni: {
+    postawa:   'assets/postacie/wrogowie/straznikKopalni_wzor.jpg',
+    atak:      'assets/postacie/wrogowie/straznikKopalni_atak.jpg',
+    trafienie: 'assets/postacie/wrogowie/straznikKopalni_trafienie.jpg',
+    odbij: []
+  },
+  straznikKoszar: {
+    postawa:   'assets/postacie/wrogowie/straznikKopalni_wzor.jpg',
+    atak:      'assets/postacie/wrogowie/straznikKopalni_atak.jpg',
+    trafienie: 'assets/postacie/wrogowie/straznikKopalni_trafienie.jpg',
+    odbij: []
+  },
+  weteranBramy: {
+    postawa:   'assets/postacie/wrogowie/weteranBramy_wzor.jpg',
+    atak:      'assets/postacie/wrogowie/weteranBramy_atak.jpg',
+    trafienie: 'assets/postacie/wrogowie/weteranBramy_trafienie.jpg',
+    odbij: []
+  },
+  nadzorca: {
+    postawa:   'assets/postacie/wrogowie/nadzorca_wzor.jpg',
+    atak:      'assets/postacie/wrogowie/nadzorca_atak.jpg',
+    trafienie: 'assets/postacie/wrogowie/nadzorca_trafienie.jpg',
+    odbij: []
+  },
+
+  // ---------- region 2: Ludus w Kapui ----------
 
   balbus: {
     postawa:   'assets/postacie/wrogowie/balbus_wzor.jpg',

@@ -592,6 +592,11 @@ const Walka = {
 
     if (ai.typ === 'zionacy' && Math.random() < ai.szansaZioniecia) return UMIEJETNOSCI.zioniecie;
 
+    if (ai.typ === 'bicz' && Math.random() < ai.szansaBicza
+        && !this.stan.gracz.statusy.some(s => s.id === 'oslabienieCelnosci')) {
+      return UMIEJETNOSCI.trzaskBicza;
+    }
+
     if (ai.typ === 'wrzask' && Math.random() < ai.szansaWrzasku
         && !this.stan.gracz.statusy.some(s => s.id === 'oslabienieCelnosci')) {
       return UMIEJETNOSCI.wrzask;
@@ -854,6 +859,12 @@ const Walka = {
   wykonajKlatwe(wykonawca, cel, um) {
     const l = this.liczbyDla(wykonawca, um);
     UI.poza(wykonawca, 'klatwa', CONFIG.ui.czasKlatwyMs);
+
+    if (um.id === 'trzaskBicza') {
+      UI.dziennik(`${wykonawca.nazwa} trzaska biczem tuż przy Twojej twarzy.`, 'status');
+      this.nalozStatus(cel, 'oslabienieCelnosci', l.oslabienieCelnosci, l.turyDzialania);
+      return;
+    }
 
     if (um.id === 'wrzask') {
       UI.dziennik(`${wykonawca.nazwa} wrzeszczy — dzwoni Ci w uszach.`, 'status');

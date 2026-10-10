@@ -20,6 +20,7 @@ const Bohater = {
       punktyDoRozdania: 0,
       cechy: Object.assign({}, klasa.cechy),
 
+      region: 1,        // prolog (kamieniolomy); Kapua to region 2
       zloto: 0,
       klejnoty: 0,      // waluta premium (js/data/premium.js)
       trening: null,    // { cecha, koniec } — jeden trening naraz
@@ -520,8 +521,9 @@ const Bohater = {
     }
     klejnoty += awanse * KLEJNOTY_ZA.awansPoziomu;
     this.stan.klejnoty += klejnoty;
+    const dlugoscDrabiny = drabinaRegionu(this.stan.region || 2).length;
     if (wrog.ranga >= this.stan.najwyzszaRanga) {
-      this.stan.najwyzszaRanga = Math.min(DRABINA.length, wrog.ranga + 1);
+      this.stan.najwyzszaRanga = Math.min(dlugoscDrabiny, wrog.ranga + 1);
     }
 
     return { zloto: zloto, xp: n.xp, klejnoty: klejnoty, materialy: n.materialy || {},
@@ -530,6 +532,20 @@ const Bohater = {
   },
 
   // ---------- postęp ----------
+
+  // Prolog konczy sie pokonaniem Nadzorcy — wtedy przenosimy bohatera
+  // do Kapui i drabina zaczyna sie od nowa, juz w regionie 2.
+  czyProlog()           { return (this.stan.region || 2) === 1; },
+  czyPrologSkonczony()  { return this.czyPokonany('nadzorca'); },
+
+  przejdzDoKapui() {
+    if (!this.czyProlog() || !this.czyPrologSkonczony()) return false;
+    this.stan.region = 2;
+    this.stan.najwyzszaRanga = 1;
+    this.stan.hp = this.maxHp();          // lanista opatruje nowy nabytek
+    this.stan.czasOstatniejRegeneracji = Date.now();
+    return true;
+  },
 
   czyOdblokowana(ranga) { return ranga <= this.stan.najwyzszaRanga; },
   czyPokonany(idWroga)  { return this.stan.pokonani.includes(idWroga); },

@@ -33,6 +33,11 @@ const Gra = {
 
   pokazMiasto() {
     UI.schowajEkranKonca();
+
+    // W prologu nie ma miasta — jesteś niewolnikiem w kamieniołomie.
+    // Wszystko dzieje się na drabinie walk.
+    if (Bohater.czyProlog()) { this.pokazDrabine(); Zapis.zapisz(); return; }
+
     UI.schowajDrabine();
     Miasto.pokaz();
     Zapis.zapisz();

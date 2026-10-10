@@ -76,6 +76,7 @@ const Zapis = {
     if (b.wezly === undefined) b.wezly = {};
     if (b.sloty === undefined) b.sloty = [null, null, null, null];
     if (b.hp === undefined) b.hp = Bohater.maxHp();
+    if (b.region === undefined) b.region = 2;   // zapis sprzed prologu = juz w Kapui
     if (b.klejnoty === undefined) b.klejnoty = 0;
     if (b.trening === undefined) b.trening = null;
     if (b.zlecenie === undefined) b.zlecenie = null;

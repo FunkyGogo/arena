@@ -159,6 +159,7 @@ const UMIEJETNOSCI = {
   ugryzienie:      { id: 'ugryzienie',      nazwa: 'Ugryzienie',      ikona: '🦷', typ: 'atak', klasa: 'wrog', nakladaStatus: 'krwawienie', opis: 'Kły szarpią ranę.' },
   uderzenieGolema: { id: 'uderzenieGolema', nazwa: 'Kamienna pięść',  ikona: '🗿', typ: 'atak', klasa: 'wrog', nakladaStatus: 'ogluszenie', opis: 'Wolne, ale ogłuszające.' },
   zioniecie:       { id: 'zioniecie',       nazwa: 'Zionięcie ogniem',ikona: '🔥', typ: 'atak', klasa: 'wrog', zywiol: 'ogien', nakladaStatus: 'podpalenie', opis: 'Podmuch żaru — omija pancerz i podpala.' },
+  trzaskBicza:     { id: 'trzaskBicza',     nazwa: 'Trzask bicza',   ikona: '🪢', typ: 'klatwa', klasa: 'wrog', nakladaStatus: 'oslabienieCelnosci', opis: 'Bicz tuż przy twarzy psuje celność.' },
   wrzask:          { id: 'wrzask',          nazwa: 'Wrzask',          ikona: '📢', typ: 'klatwa', klasa: 'wrog', nakladaStatus: 'oslabienieCelnosci', opis: 'Przeraźliwy krzyk psuje celność.' },
   wielePaszczy:    { id: 'wielePaszczy',    nazwa: 'Wiele paszczy',   ikona: '🐉', typ: 'seria', klasa: 'wrog', opis: 'Kilka głów kąsa naraz.' },
 

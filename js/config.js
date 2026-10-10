@@ -262,6 +262,7 @@ const CONFIG = {
     zioniecie:        { mnoznikObrazen: 0.9, obrazeniaPodpalenia: 5, turyDzialania: 3 },
     wielePaszczy:     { mnoznikObrazen: 0.55, liczbaCiosow: 3 },
     wrzask:           { turyDzialania: 3, oslabienieCelnosci: 3 },
+    trzaskBicza:      { turyDzialania: 2, oslabienieCelnosci: 2 },
     opatrunek:        { leczenieProcentMaxHp: 0.30 }
   },
 

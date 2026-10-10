@@ -224,4 +224,27 @@ const MATERIALY = {
 };
 
 // Drabina areny: identyfikatory wrogów w kolejności rang 1..15
-const DRABINA = Object.values(WROGOWIE).sort((a, b) => a.ranga - b.ranga).map(w => w.id);
+// Drabina liczona per region. Region 1 to prolog (kamieniołomy, 5 walk),
+// region 2 to Ludus w Kapui (15 rang). Wrogowie bez pola `region`
+// należą do regionu 2 — to było pierwsze, co powstało.
+function drabinaRegionu(nr) {
+  // Tylko wrogowie Z RANGĄ. Bestie dołączają do WROGOWIE później
+  // (js/data/bestie.js) i rangi nie mają — ich miejsce jest w Jamie
+  // łowów, nie na drabinie.
+  const lista = Object.values(WROGOWIE)
+    .filter(w => w.ranga && (w.region || 2) === nr)
+    .sort((a, b) => a.ranga - b.ranga);
+
+  // Walka grupowa zastępuje w drabinie pojedynczego wroga o tej randze.
+  return lista.map(w => {
+    const wataha = typeof WATAHY !== 'undefined'
+      ? Object.values(WATAHY).find(x => x.ranga && (x.region || 2) === nr && x.ranga === w.ranga)
+      : null;
+    return wataha ? wataha.id : w.id;
+  }).filter((id, i, tab) => tab.indexOf(id) === i);
+}
+
+// Zgodność ze starym kodem: DRABINA to wciąż region 2.
+const DRABINA = Object.values(WROGOWIE)
+  .filter(w => (w.region || 2) === 2)
+  .sort((a, b) => a.ranga - b.ranga).map(w => w.id);

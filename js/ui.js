@@ -108,8 +108,17 @@ const UI = {
     this.rysujPasekBohatera();
     this.el.listaRang.innerHTML = '';
 
-    DRABINA.forEach(idW => {
-      const w = WROGOWIE[idW];
+    const region = Bohater.stan.region || 2;
+    this.el.ekranDrabiny.querySelector('h1').textContent = region === 1
+      ? 'Kamieniołom — droga do bramy'
+      : 'Ludus w Kapui — drabina areny';
+    // W prologu nie ma miasta, więc nie ma dokąd wracać.
+    this.el.drabinaPowrot.hidden = region === 1;
+
+    drabinaRegionu(region).forEach(idW => {
+      // Wpis może być pojedynczym wrogiem albo watahą.
+      const w = WROGOWIE[idW] || WATAHY[idW];
+      if (!w) return;
       const odblokowany = Bohater.czyOdblokowana(w.ranga);
       const pokonany = Bohater.czyPokonany(idW);
 
@@ -122,14 +131,21 @@ const UI = {
       b.disabled = !odblokowany;
 
       const znacznik = w.czempion ? '☠' : (w.miniboss ? '★' : '');
-      const lupy = `${w.nagroda.zloto} zł · ${w.nagroda.xp} XP`;
+
+      // Wataha nie ma własnego HP ani nagrody — sumujemy je ze składu.
+      const sklad = w.sklad ? w.sklad.map(id => WROGOWIE[id]) : [w];
+      const hp = sklad.reduce((s, x) => s + x.hp, 0);
+      const zloto = sklad.reduce((s, x) => s + x.nagroda.zloto, 0);
+      const xp = sklad.reduce((s, x) => s + x.nagroda.xp, 0);
+      const lupy = `${zloto} zł · ${xp} XP`;
 
       b.innerHTML = `
         <span class="ranga-numer">${w.ranga}</span>
         <span class="ranga-ikona">${odblokowany ? w.ikona : '🔒'}</span>
         <span class="ranga-tresc">
           <strong>${odblokowany ? w.nazwa : '???'} ${znacznik}</strong>
-          <span class="ranga-meta">${odblokowany ? `${w.hp} HP · ${lupy}` : 'Wygraj poprzednią rangę'}</span>
+          <span class="ranga-meta">${!odblokowany ? 'Wygraj poprzednią rangę'
+            : (w.uczy ? w.uczy : `${hp} HP · ${lupy}`)}</span>
         </span>
         ${pokonany ? '<span class="ranga-ptaszek">✓</span>' : ''}`;
 
@@ -478,7 +494,10 @@ const UI = {
     if (typeof TLA_WALKI === 'undefined') return;
     // Znacznik czempiona jest w danych wroga, nie w obiekcie z walki.
     const czempion = s.wrogowie.some(w => WROGOWIE[w.id] && WROGOWIE[w.id].czempion);
-    const tlo = czempion ? TLA_WALKI.czempion : TLA_WALKI.domyslne;
+    // Prolog dzieje sie w kamieniolomie, nie na arenie.
+    const tlo = Bohater.czyProlog() ? TLA_WALKI.kamieniolom
+              : czempion            ? TLA_WALKI.czempion
+              :                       TLA_WALKI.domyslne;
     if (this.tloWalki === tlo) return;
 
     this.tloWalki = tlo;
@@ -840,12 +859,40 @@ const UI = {
         `Padłeś w rundzie ${s.runda}. Bez nagrody — wróć silniejszy.`;
     }
 
-    this.przyciskKonca('Wróć do miasta', () => Gra.pokazMiasto(), wynik === 'przegrana');
+    // Koniec prologu: nie ma dokąd wracać, bo miasto dopiero przed Tobą.
+    if (Bohater.czyProlog() && Bohater.czyPrologSkonczony()) {
+      this.przyciskKonca('Dalej', () => this.pokazKoniecPrologu(), true);
+      return;
+    }
+
+    this.przyciskKonca(Bohater.czyProlog() ? 'Dalej' : 'Wróć do miasta',
+                       () => Gra.pokazMiasto(), wynik === 'przegrana');
     if (wynik === 'wygrana' && Walka.stan.wrogowie[0].bestia) {
       this.przyciskKonca('Poluj dalej', () => { Gra.pokazMiasto(); Miasto.wejdz('jama'); }, false);
     } else if (wynik === 'wygrana' && !Walka.stan.wrog.czempion) {
       this.przyciskKonca('Do areny', () => Gra.pokazDrabine(), false);
     }
+  },
+
+  // Domknięcie prologu z design/arena_regiony.md: uciekasz w dzicz,
+  // łowca niewolników Cię łapie i sprzedaje do ludusu w Kapui.
+  pokazKoniecPrologu() {
+    this.el.koncaTytul.textContent = 'WOLNOŚĆ';
+    this.el.koncaTytul.className = 'wygrana';
+    this.el.koncaOpis.textContent =
+      'Nadzorca leży w pyle, brama stoi otworem. Biegniesz w dzicz — trzy dni ' +
+      'i trzy noce. Czwartego łapie Cię łowca niewolników i sprzedaje do ' +
+      'prowincjonalnego ludusu w Kapui. Uciekłeś z więzienia wprost na arenę. ' +
+      'Ale tu, po raz pierwszy, dadzą Ci broń do ręki — i powód, żeby jej użyć.';
+    this.el.koncaLup.innerHTML = '';
+    this.el.koncaPrzyciski.innerHTML = '';
+
+    this.przyciskKonca('Do Kapui', () => {
+      Bohater.przejdzDoKapui();
+      Zapis.zapisz();
+      this.schowajEkranKonca();
+      Gra.pokazMiasto();
+    }, true);
   },
 
   przyciskKonca(tekst, akcja, glowny) {
