@@ -553,6 +553,114 @@ const Miasto = {
   },
   kupEliksir()        { if (Bohater.kupEliksir()) this.odswiezPanel('sklep'); },
 
+  // ---------- PLAC TRENINGOWY ----------
+
+  CECHY_TRENINGU: {
+    sila:      ['Siła',      'obrażenia Twoich ciosów'],
+    atak:      ['Atak',      'celność — jak często trafiasz'],
+    obrona:    ['Obrona',    'ile obrażeń zdejmuje zbroja'],
+    zrecznosc: ['Zręczność', 'inicjatywa i unik'],
+    witalnosc: ['Witalność', 'maksymalne HP'],
+    wola:      ['Wola',      'odporność na magię i klątwy']
+  },
+
+  // "135 min" czyta sie zle — pokazujemy godziny i minuty.
+  czasSlownie(minuty) {
+    if (minuty < 60) return `${minuty} min`;
+    const h = Math.floor(minuty / 60), m = minuty % 60;
+    return m ? `${h} godz. ${m} min` : `${h} godz.`;
+  },
+
+  panel_trening() {
+    const b = Bohater.stan;
+
+    // W trakcie treningu panel pokazuje tylko ten jeden, zeby nie kusic
+    // klikaniem w cos, czego i tak nie da sie teraz zaczac.
+    if (b.trening) {
+      const [nazwa] = this.CECHY_TRENINGU[b.trening.cecha];
+      const zostalo = Bohater.minutDoKonca();
+
+      if (Bohater.czyTreningGotowy()) {
+        this.el.panelTresc.innerHTML = `
+          <p class="panel-opis">Trener kiwa głową. <strong>${nazwa}</strong> wyćwiczona.</p>
+          <button class="przycisk-awansu" onclick="Miasto.odbierzTrening()">
+            Odbierz +1 ${nazwa}
+          </button>`;
+        return;
+      }
+
+      const cena = Bohater.klejnotyNaSkrocenie();
+      const stac = b.klejnoty >= cena;
+      this.el.panelTresc.innerHTML = `
+        <p class="panel-opis">Trenujesz <strong>${nazwa}</strong>.
+          Zostało <strong>${this.czasSlownie(zostalo)}</strong>.
+          Możesz zamknąć grę — czas leci dalej.</p>
+        <div class="oferta ${stac ? '' : 'niestac'}">
+          <span class="oferta-ikona">💎</span>
+          <span class="oferta-tresc">
+            <strong>Skróć czekanie</strong>
+            <span>Kończy trening od razu. Masz 💎 ${b.klejnoty}</span>
+          </span>
+          <button class="oferta-kup klejnot" ${stac ? '' : 'disabled'}
+                  onclick="Miasto.skrocTrening()">💎 ${cena}</button>
+        </div>
+        <div class="oferta niestac">
+          <span class="oferta-ikona">📺</span>
+          <span class="oferta-tresc">
+            <strong>Obejrzyj reklamę</strong>
+            <span>Skróci czekanie za darmo, kilka razy dziennie</span>
+          </span>
+          <span class="oferta-stan">wkrótce</span>
+        </div>
+        <p class="panel-uwaga">Reklamy podłączymy przy wydaniu na Androida.</p>`;
+      return;
+    }
+
+    const wiersze = Object.entries(this.CECHY_TRENINGU).map(([klucz, [nazwa, opis]]) => {
+      const koszt = Bohater.kosztTreningu(klucz);
+      const minuty = Bohater.minutyTreningu(klucz);
+      const stac = b.zloto >= koszt;
+
+      return `
+        <div class="oferta ${stac ? '' : 'niestac'}">
+          <span class="oferta-ikona">${b.cechy[klucz]}</span>
+          <span class="oferta-tresc">
+            <strong>${nazwa} → ${b.cechy[klucz] + 1}</strong>
+            <span>${opis} — ${minuty ? this.czasSlownie(minuty) : 'od ręki'}</span>
+          </span>
+          <button class="oferta-kup" ${stac ? '' : 'disabled'}
+                  onclick="Miasto.trenuj('${klucz}')">🪙 ${koszt}</button>
+        </div>`;
+    }).join('');
+
+    this.el.panelTresc.innerHTML = `
+      <p class="panel-opis">Trener bierze złoto i czas. Im wyżej masz cechę,
+        tym drożej i dłużej — ale rośnie na stałe, bez czekania na awans.</p>
+      ${wiersze}
+      <p class="panel-uwaga">Trenujesz jedną cechę naraz. Czas leci też przy wyłączonej grze.</p>`;
+  },
+
+  trenuj(cecha) {
+    const wynik = Bohater.zacznijTrening(cecha);
+    if (!wynik) return;
+    Zapis.zapisz();
+    this.odswiezPanel('trening');
+    this.rysujBudynki();
+  },
+
+  odbierzTrening() {
+    if (!Bohater.odbierzTrening()) return;
+    Zapis.zapisz();
+    this.odswiezPanel('trening');
+    this.rysujBudynki();
+  },
+
+  skrocTrening() {
+    if (!Bohater.skrocTreningKlejnotami()) return;
+    Zapis.zapisz();
+    this.odswiezPanel('trening');
+  },
+
   // ---------- KUŹNIA ----------
 
   panel_kuznia() {

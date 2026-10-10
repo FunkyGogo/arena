@@ -305,6 +305,18 @@ const CONFIG = {
       kosztZaPoziom: 6           // ...przemnożony przez brakującą część HP
     },
 
+    // --- Plac treningowy (design/arena_ekonomia.md sekcja 3) ---
+    //  Zasada stamtad: wczesne treningi NATYCHMIAST za zloto, pozniejsze
+    //  z timerem. Nowy gracz nie moze odbic sie od sciany czekania.
+    trening: {
+      kosztBazowy: 30,          // złoto = bazowy + wartość cechy * zaPunkt
+      kosztZaPunkt: 18,
+      progCzasu: 7,             // do tej wartości cechy trening jest od ręki
+      minutZaPunkt: 12,         // powyżej progu: tyle minut za każdy punkt ponad
+      minutMax: 240,            // nigdy dłużej niż 4 godziny
+      klejnotyZaGodzine: 6      // skrócenie czekania: tyle klejnotów za godzinę
+    },
+
     eliksir: {
       leczenieProcentMaxHp: 0.30,
       cena: 40,

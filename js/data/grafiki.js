@@ -46,6 +46,7 @@ const MAPA_PUNKTY = {
   gospoda:    { x: 79, y: 26 },
   arena:      { x: 73, y: 43 },
   kuznia:     { x: 82, y: 59 },
+  trening:    { x: 33, y: 47 },
   czarodziej: { x: 30, y: 70 },
   jama:       { x: 78, y: 82 }
 };
@@ -112,7 +113,8 @@ const IKONY = {
     'gospoda',
     'jama',
     'kuznia',
-    'sklep'
+    'sklep',
+    'trening'
   ],
   umiejetnosci: [
     'absolutneZero',

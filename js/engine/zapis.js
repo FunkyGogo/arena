@@ -77,6 +77,7 @@ const Zapis = {
     if (b.sloty === undefined) b.sloty = [null, null, null, null];
     if (b.hp === undefined) b.hp = Bohater.maxHp();
     if (b.klejnoty === undefined) b.klejnoty = 0;
+    if (b.trening === undefined) b.trening = null;
     if (b.helm === undefined) b.helm = null;
     if (b.tarcza === undefined) b.tarcza = null;
     if (b.nagolenniki === undefined) b.nagolenniki = null;

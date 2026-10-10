@@ -22,6 +22,7 @@ const Bohater = {
 
       zloto: 0,
       klejnoty: 0,      // waluta premium (js/data/premium.js)
+      trening: null,    // { cecha, koniec } — jeden trening naraz
       materialy: {},
       esencje: {},
       eliksiry: 0,
@@ -197,6 +198,72 @@ const Bohater = {
     if (this.stan.eliksiry <= 0) return 0;
     this.stan.eliksiry--;
     return Math.round(this.maxHp() * CONFIG.ekonomia.eliksir.leczenieProcentMaxHp);
+  },
+
+  // ---------- plac treningowy ----------
+  //  Jeden trening naraz. Koszt i czas rosną z wartością cechy, więc
+  //  to sam się hamujący odpływ złota, a nie darmowa winda w górę.
+
+  kosztTreningu(cecha) {
+    const t = CONFIG.ekonomia.trening;
+    return t.kosztBazowy + this.stan.cechy[cecha] * t.kosztZaPunkt;
+  },
+
+  minutyTreningu(cecha) {
+    const t = CONFIG.ekonomia.trening;
+    const ponadProg = this.stan.cechy[cecha] - t.progCzasu;
+    if (ponadProg <= 0) return 0;                       // wcześnie: od ręki
+    return Math.min(t.minutMax, ponadProg * t.minutZaPunkt);
+  },
+
+  trening() { return this.stan.trening; },
+
+  // Ile minut zostało. 0 znaczy "gotowe do odebrania".
+  minutDoKonca() {
+    if (!this.stan.trening) return 0;
+    const ms = this.stan.trening.koniec - Date.now();
+    return Math.max(0, Math.ceil(ms / 60000));
+  },
+
+  czyTreningGotowy() { return !!this.stan.trening && this.minutDoKonca() === 0; },
+
+  zacznijTrening(cecha) {
+    if (this.stan.trening) return false;                // jeden naraz
+    if (!this.stan.cechy.hasOwnProperty(cecha)) return false;
+
+    const koszt = this.kosztTreningu(cecha);
+    if (this.stan.zloto < koszt) return false;
+    this.stan.zloto -= koszt;
+
+    const minuty = this.minutyTreningu(cecha);
+    if (minuty === 0) {                                 // natychmiastowy
+      this.stan.cechy[cecha]++;
+      return 'gotowe';
+    }
+    this.stan.trening = { cecha: cecha, koniec: Date.now() + minuty * 60000 };
+    return 'czekaj';
+  },
+
+  odbierzTrening() {
+    if (!this.czyTreningGotowy()) return false;
+    const cecha = this.stan.trening.cecha;
+    this.stan.cechy[cecha]++;
+    this.stan.trening = null;
+    return cecha;
+  },
+
+  klejnotyNaSkrocenie() {
+    const minuty = this.minutDoKonca();
+    if (!minuty) return 0;
+    return Math.max(1, Math.ceil(minuty / 60 * CONFIG.ekonomia.trening.klejnotyZaGodzine));
+  },
+
+  skrocTreningKlejnotami() {
+    const cena = this.klejnotyNaSkrocenie();
+    if (!cena || this.stan.klejnoty < cena) return false;
+    this.stan.klejnoty -= cena;
+    this.stan.trening.koniec = Date.now();
+    return true;
   },
 
   // ---------- sklep i kuźnia ----------
