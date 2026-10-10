@@ -356,7 +356,8 @@ const Bohater = {
 
   zapiszNagrode(wrog) {
     const n = wrog.nagroda;
-    this.stan.zloto += n.zloto;
+    const zloto = Math.round(n.zloto * CONFIG.ekonomia.mnoznikZlota);
+    this.stan.zloto += zloto;
 
     Object.entries(n.materialy || {}).forEach(([idM, ile]) => {
       this.stan.materialy[idM] = (this.stan.materialy[idM] || 0) + ile;
@@ -388,7 +389,7 @@ const Bohater = {
       this.stan.najwyzszaRanga = Math.min(DRABINA.length, wrog.ranga + 1);
     }
 
-    return { zloto: n.zloto, xp: n.xp, klejnoty: klejnoty, materialy: n.materialy || {},
+    return { zloto: zloto, xp: n.xp, klejnoty: klejnoty, materialy: n.materialy || {},
              esencje: n.esencje || {},
              awanse: awanse, bonusPU: bonusPU, artefakt: artefakt };
   },

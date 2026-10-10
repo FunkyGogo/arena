@@ -120,11 +120,14 @@ const CONFIG = {
       turyDzialania: 3            // na tyle jego tur
     },
 
+    // Leczenie w trakcie walki. UWAGA przy strojeniu: to najmocniejsza
+    // rzecz w grze. Przy 25% i dwoch uzyciach (trzech na 3. randze) dawalo
+    // caly drugi pasek zycia za grosze — walki przestawaly byc groźne.
     drugiOddech: {
       koszt: 6,
-      leczenieProcentMaxHp: 0.25,
-      zwrotZasobu: 2,
-      uzyciNaWalke: 2
+      leczenieProcentMaxHp: 0.18,
+      zwrotZasobu: 0,            // leczenie nie moze jeszcze oddawac Wigoru
+      uzyciNaWalke: 1
     },
 
     // ======== BERSERKER ========
@@ -287,6 +290,11 @@ const CONFIG = {
     // ma oszczędzać czas, nigdy nie może być przymusem (design/arena_ekonomia.md).
     minutNaPelneHp: 75,          // ile minut trwa regeneracja z 0 do pełna
     hpPoPrzegranej: 1,           // z czym wstajesz po porażce
+
+    // Ile zlota realnie dostajesz za walke: nagroda z karty wroga razy to.
+    // Przy 1.0 cale przejscie regionu dawalo 453 zlota, a sam komplet
+    // sprzetu ze sklepu kosztuje 315 — za ciasno.
+    mnoznikZlota: 1.6,
 
     zwrotZeSprzedazy: 0.5,       // ile procent ceny dostajesz, sprzedając sprzęt
     wartoscSprzetuBezCeny: 70,   // ile wart jest sprzęt z kuźni (nie ma ceny sklepowej)

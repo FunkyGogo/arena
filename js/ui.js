@@ -197,7 +197,14 @@ const UI = {
         <span class="cecha-tresc"><strong>${nazwa}</strong><span>${opis}</span></span>
         <button class="cecha-plus" ${b.punktyDoRozdania <= 0 ? 'disabled' : ''}
                 onclick="UI.dodajPunkt('${cecha}')">+</button>
-      </div>`).join('');
+      </div>`).join('')
+      // Punkty umiejetnosci lezaly dotad tylko w karcie bohatera, wiec po
+      // awansie latwo bylo o nich zapomniec. Przejscie do drzewka jest tutaj.
+      + (b.pu > 0
+        ? `<button class="przycisk-awansu" onclick="UI.schowajAwans(); EkranDrzewka.pokaz()">
+             Masz ${b.pu} pkt umiejętności — otwórz drzewko
+           </button>`
+        : '');
   },
 
   dodajPunkt(cecha) {
@@ -801,7 +808,13 @@ const UI = {
         ${n.bonusPU ? `<p class="awans-info">Za pokonanie bossa: +${n.bonusPU} punktu umiejętności.</p>` : ''}
         ${n.artefakt ? `<p class="artefakt-info">ARTEFAKT: ${UI.ikonaArtefaktu(ARTEFAKTY[n.artefakt])} ${ARTEFAKTY[n.artefakt].nazwa} — ${ARTEFAKTY[n.artefakt].efekt}</p>` : ''}`;
 
+      // Po awansie masz dwie rzeczy do wydania — cechy i punkty umiejetnosci.
+      // Oba prowadza wprost stad, zeby nie szukac ich w karcie bohatera.
       if (n.awanse > 0) this.przyciskKonca('Rozdaj punkty cech', () => this.pokazAwans(), true);
+      if (Bohater.stan.pu > 0) {
+        this.przyciskKonca(`Wydaj ${Bohater.stan.pu} pkt umiejętności`,
+                           () => EkranDrzewka.pokaz(), n.awanse === 0);
+      }
       if (czempion) {
         this.el.koncaOpis.textContent =
           `Verrus pada. Przepustka do Galii jest Twoja — region 2 ukończony. ` +

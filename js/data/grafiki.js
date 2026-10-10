@@ -45,7 +45,7 @@ const MAPA_PUNKTY = {
   sklep:      { x: 43, y: 30 },
   gospoda:    { x: 79, y: 26 },
   arena:      { x: 73, y: 43 },
-  kuznia:     { x: 82, y: 56 },
+  kuznia:     { x: 82, y: 59 },
   czarodziej: { x: 30, y: 70 },
   jama:       { x: 78, y: 82 }
 };
@@ -451,7 +451,7 @@ const GRAFIKI_WROGOW = {
     postawa:   'assets/postacie/wrogowie/lucius_wzor.jpg',
     atak:      'assets/postacie/wrogowie/lucius_atak.jpg',
     trafienie: 'assets/postacie/wrogowie/lucius_trafienie.jpg',
-    odbij: []
+    odbij: ['trafienie']   // zataczal sie w strone bohatera zamiast od niego
   }
 
 };

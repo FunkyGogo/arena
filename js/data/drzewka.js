@@ -96,7 +96,7 @@ const DRZEWKA = {
         nazwa: 'Drugi oddech', ikona: '💨', typ: 'aktywna', galaz: 'hart',
         rodzic: null, odPoziomu: 1, rangi: 3, kosztPU: 1, akcja: 'drugiOddech',
         opis: 'Leczy część maksymalnego HP w trakcie walki.',
-        naRange: [{}, { leczenieProcentMaxHp: 0.08 }, { koszt: -2, uzyciNaWalke: 1 }]
+        naRange: [{}, { leczenieProcentMaxHp: 0.05 }, { uzyciNaWalke: 1 }]
       },
       niezlomnaPostawa: {
         nazwa: 'Niezłomna postawa', ikona: '🗿', typ: 'aktywna', galaz: 'hart',
