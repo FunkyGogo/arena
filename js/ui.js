@@ -808,6 +808,19 @@ const UI = {
         ${n.bonusPU ? `<p class="awans-info">Za pokonanie bossa: +${n.bonusPU} punktu umiejętności.</p>` : ''}
         ${n.artefakt ? `<p class="artefakt-info">ARTEFAKT: ${UI.ikonaArtefaktu(ARTEFAKTY[n.artefakt])} ${ARTEFAKTY[n.artefakt].nazwa} — ${ARTEFAKTY[n.artefakt].efekt}</p>` : ''}`;
 
+      // Podwojenie lupu reklama — tylko po wygranej i tylko raz na walke.
+      if (n.zloto > 0 && Reklama.mozna('podwojLup')) {
+        this.przyciskKonca(`📺 Podwój łup (+${n.zloto} złota)`, (zdarzenie) => {
+          const przycisk = zdarzenie.currentTarget;
+          przycisk.disabled = true;
+          Reklama.obejrzyj('podwojLup', () => {
+            Bohater.stan.zloto += n.zloto;
+            Zapis.zapisz();
+            przycisk.textContent = `Łup podwojony: +${n.zloto} złota`;
+          });
+        }, false);
+      }
+
       // Po awansie masz dwie rzeczy do wydania — cechy i punkty umiejetnosci.
       // Oba prowadza wprost stad, zeby nie szukac ich w karcie bohatera.
       if (n.awanse > 0) this.przyciskKonca('Rozdaj punkty cech', () => this.pokazAwans(), true);

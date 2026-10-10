@@ -203,6 +203,8 @@ const BUDYNKI = {
              opis: 'Podstawowy oręż, pancerze i eliksiry za złoto.' },
   czarodziej: { id: 'czarodziej', nazwa: 'Czarodziej', ikona: '🔮', odblokowanePoRandze: 5,
              opis: 'Artefakty: kupno, sprzedaż i zakładanie. Trzeci, pasywny slot.' },
+  zlecenia: { id: 'zlecenia', nazwa: 'Tablica zleceń', ikona: '📜', odblokowanePoRandze: 1,
+             opis: 'Praca dla gladiatora poza areną. Złoto za czas, nie za krew.' },
   trening: { id: 'trening', nazwa: 'Plac treningowy', ikona: '🏋', odblokowanePoRandze: 1,
              opis: 'Podnoś cechy za złoto. Wcześnie od ręki, później trzeba odczekać.' },
   jama:    { id: 'jama',    nazwa: 'Jama łowów', ikona: '🕳', odblokowanePoRandze: 8,

@@ -2135,3 +2135,35 @@ html, body {
   color: #efe8ff;
 }
 .oferta-kup.klejnot:disabled { opacity: .45; }
+
+/* ---------- reklamy nagradzane ---------- */
+.oferta-kup.reklama {
+  background: linear-gradient(180deg, #3f7f52, #24512f);
+  border-color: #7fd49a;
+  color: #eaffef;
+}
+
+/* Zaslepka na czas, gdy nie ma jeszcze prawdziwej sieci reklamowej. */
+.reklama-zaslepka {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: rgba(10,8,6,.88);
+}
+.reklama-ramka {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 280px;
+  margin: 0 16px;
+  padding: 22px 18px;
+  text-align: center;
+  color: var(--kosc);
+  background: var(--ziemia-3);
+  border: 1px dashed rgba(200,161,101,.5);
+  border-radius: 12px;
+}
+.reklama-ramka strong { letter-spacing: .08em; font-size: 13px; }
+.reklama-ramka span { font-size: 12px; color: var(--przygaszony); line-height: 1.45; }

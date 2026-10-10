@@ -23,6 +23,9 @@ const Bohater = {
       zloto: 0,
       klejnoty: 0,      // waluta premium (js/data/premium.js)
       trening: null,    // { cecha, koniec } — jeden trening naraz
+      zlecenie: null,   // { id, koniec } — jedno zlecenie naraz
+      zleceniaZrobione: 0,
+      reklamy: null,    // dzienny licznik obejrzanych reklam
       materialy: {},
       esencje: {},
       eliksiry: 0,
@@ -263,6 +266,71 @@ const Bohater = {
     if (!cena || this.stan.klejnoty < cena) return false;
     this.stan.klejnoty -= cena;
     this.stan.trening.koniec = Date.now();
+    return true;
+  },
+
+  // ---------- tablica zleceń ----------
+  //  Jedno zlecenie naraz, ale RÓWNOLEGLE do treningu — to osobne
+  //  rzeczy: trening podnosi cechy, zlecenie przynosi złoto.
+
+  zleceniaDostepne() {
+    return ZLECENIA.filter(z => this.stan.zleceniaZrobione >= z.poIlu);
+  },
+
+  zlecenieWToku() {
+    if (!this.stan.zlecenie) return null;
+    return ZLECENIA.find(z => z.id === this.stan.zlecenie.id) || null;
+  },
+
+  minutDoKoncaZlecenia() {
+    if (!this.stan.zlecenie) return 0;
+    return Math.max(0, Math.ceil((this.stan.zlecenie.koniec - Date.now()) / 60000));
+  },
+
+  czyZlecenieGotowe() { return !!this.stan.zlecenie && this.minutDoKoncaZlecenia() === 0; },
+
+  wezZlecenie(idZlecenia) {
+    if (this.stan.zlecenie) return false;
+    const z = ZLECENIA.find(x => x.id === idZlecenia);
+    if (!z || this.stan.zleceniaZrobione < z.poIlu) return false;
+
+    this.stan.zlecenie = { id: z.id, koniec: Date.now() + z.minuty * 60000 };
+    return true;
+  },
+
+  odbierzZlecenie() {
+    if (!this.czyZlecenieGotowe()) return null;
+    const z = this.zlecenieWToku();
+    this.stan.zlecenie = null;
+    if (!z) return null;
+
+    this.stan.zloto += z.zloto;
+    this.stan.zleceniaZrobione++;
+    Object.entries(z.materialy || {}).forEach(([idM, ile]) => {
+      this.stan.materialy[idM] = (this.stan.materialy[idM] || 0) + ile;
+    });
+    return z;
+  },
+
+  klejnotyNaSkrocenieZlecenia() {
+    const minuty = this.minutDoKoncaZlecenia();
+    if (!minuty) return 0;
+    return Math.max(1, Math.ceil(minuty / 60 * CONFIG.ekonomia.zlecenia.klejnotyZaGodzine));
+  },
+
+  skrocZlecenieKlejnotami() {
+    const cena = this.klejnotyNaSkrocenieZlecenia();
+    if (!cena || this.stan.klejnoty < cena) return false;
+    this.stan.klejnoty -= cena;
+    this.stan.zlecenie.koniec = Date.now();
+    return true;
+  },
+
+  // Reklama nie konczy timera, tylko scina mu kawalek.
+  scinajMinuty(ktory, minuty) {
+    const stan = ktory === 'trening' ? this.stan.trening : this.stan.zlecenie;
+    if (!stan) return false;
+    stan.koniec = Math.max(Date.now(), stan.koniec - minuty * 60000);
     return true;
   },
 

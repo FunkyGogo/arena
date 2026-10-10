@@ -438,8 +438,20 @@ const Miasto = {
            <span class="oferta-tresc"><strong>Nocleg i opatrunek</strong><span>Pełne leczenie od ręki</span></span>
            <button class="oferta-kup" ${staC ? '' : 'disabled'} onclick="Miasto.odpocznij()">🪙 ${koszt}</button>
          </div>
+         ${Reklama.wiersz('odpocznij', 'Obejrzyj reklamę',
+           'Pełne leczenie za darmo', 'Miasto.reklamaOdpocznij()')}
          <p class="panel-uwaga">Możesz też po prostu poczekać — rany goją się same, za darmo.
            Gospoda kupuje czas, nie siłę.</p>`;
+  },
+
+  reklamaOdpocznij() {
+    Reklama.obejrzyj('odpocznij', () => {
+      Bohater.stan.hp = Bohater.maxHp();
+      Bohater.stan.czasOstatniejRegeneracji = Date.now();
+      Zapis.zapisz();
+      this.odswiezPanel('gospoda');
+      this.rysujBudynki();
+    });
   },
 
   odpocznij() {
@@ -604,15 +616,9 @@ const Miasto = {
           <button class="oferta-kup klejnot" ${stac ? '' : 'disabled'}
                   onclick="Miasto.skrocTrening()">💎 ${cena}</button>
         </div>
-        <div class="oferta niestac">
-          <span class="oferta-ikona">📺</span>
-          <span class="oferta-tresc">
-            <strong>Obejrzyj reklamę</strong>
-            <span>Skróci czekanie za darmo, kilka razy dziennie</span>
-          </span>
-          <span class="oferta-stan">wkrótce</span>
-        </div>
-        <p class="panel-uwaga">Reklamy podłączymy przy wydaniu na Androida.</p>`;
+        ${Reklama.wiersz('skrocTimer', 'Obejrzyj reklamę',
+          `Skraca trening o ${CONFIG.ekonomia.zlecenia.minutZaReklame} min`,
+          'Miasto.reklamaTrening()')}`;
       return;
     }
 
@@ -659,6 +665,105 @@ const Miasto = {
     if (!Bohater.skrocTreningKlejnotami()) return;
     Zapis.zapisz();
     this.odswiezPanel('trening');
+  },
+
+  // ---------- TABLICA ZLECEŃ ----------
+
+  panel_zlecenia() {
+    const b = Bohater.stan;
+    const wToku = Bohater.zlecenieWToku();
+
+    if (wToku) {
+      if (Bohater.czyZlecenieGotowe()) {
+        this.el.panelTresc.innerHTML = `
+          <p class="panel-opis">Robota skończona. <strong>${wToku.nazwa}</strong> — odbierz zapłatę.</p>
+          <button class="przycisk-awansu" onclick="Miasto.odbierzZlecenie()">
+            Odbierz 🪙 ${wToku.zloto}
+          </button>`;
+        return;
+      }
+
+      const zostalo = Bohater.minutDoKoncaZlecenia();
+      const cena = Bohater.klejnotyNaSkrocenieZlecenia();
+      const stac = b.klejnoty >= cena;
+
+      this.el.panelTresc.innerHTML = `
+        <p class="panel-opis">W robocie: <strong>${wToku.nazwa}</strong>.
+          Zostało <strong>${this.czasSlownie(zostalo)}</strong>.
+          Możesz w tym czasie walczyć — czas leci sam.</p>
+        <div class="oferta ${stac ? '' : 'niestac'}">
+          <span class="oferta-ikona">💎</span>
+          <span class="oferta-tresc">
+            <strong>Skończ od razu</strong>
+            <span>Masz 💎 ${b.klejnoty}</span>
+          </span>
+          <button class="oferta-kup klejnot" ${stac ? '' : 'disabled'}
+                  onclick="Miasto.skrocZlecenie()">💎 ${cena}</button>
+        </div>
+        ${Reklama.wiersz('skrocTimer', 'Obejrzyj reklamę',
+          `Skraca robotę o ${CONFIG.ekonomia.zlecenia.minutZaReklame} min`,
+          'Miasto.reklamaZlecenie()')}`;
+      return;
+    }
+
+    const dostepne = Bohater.zleceniaDostepne();
+    const nastepne = ZLECENIA.find(z => b.zleceniaZrobione < z.poIlu);
+
+    const wiersze = dostepne.map(z => `
+      <div class="oferta">
+        <span class="oferta-ikona">📜</span>
+        <span class="oferta-tresc">
+          <strong>${z.nazwa} — 🪙 ${z.zloto}</strong>
+          <span>${this.czasSlownie(z.minuty)} — ${z.opis}</span>
+        </span>
+        <button class="oferta-kup" onclick="Miasto.wezZlecenie('${z.id}')">Biorę</button>
+      </div>`).join('');
+
+    this.el.panelTresc.innerHTML = `
+      <p class="panel-opis">Zlecenia wiszą na tablicy przy bramie ludusa.
+        Bierzesz jedno i idziesz w swoje — zapłata czeka po czasie.
+        Wykonanych zleceń: <strong>${b.zleceniaZrobione}</strong>.</p>
+      ${wiersze}
+      ${nastepne
+        ? `<p class="panel-uwaga">Po ${nastepne.poIlu} wykonanych zleceniach dojdzie
+             „${nastepne.nazwa}" — ${this.czasSlownie(nastepne.minuty)} za 🪙 ${nastepne.zloto}.</p>`
+        : '<p class="panel-uwaga">Masz opinię, na którą się pracuje latami. Wszystkie zlecenia są Twoje.</p>'}`;
+  },
+
+  wezZlecenie(id) {
+    if (!Bohater.wezZlecenie(id)) return;
+    Zapis.zapisz();
+    this.odswiezPanel('zlecenia');
+  },
+
+  odbierzZlecenie() {
+    const z = Bohater.odbierzZlecenie();
+    if (!z) return;
+    Zapis.zapisz();
+    this.odswiezPanel('zlecenia');
+    this.rysujBudynki();
+  },
+
+  skrocZlecenie() {
+    if (!Bohater.skrocZlecenieKlejnotami()) return;
+    Zapis.zapisz();
+    this.odswiezPanel('zlecenia');
+  },
+
+  reklamaZlecenie() {
+    Reklama.obejrzyj('skrocTimer', () => {
+      Bohater.scinajMinuty('zlecenie', CONFIG.ekonomia.zlecenia.minutZaReklame);
+      Zapis.zapisz();
+      this.odswiezPanel('zlecenia');
+    });
+  },
+
+  reklamaTrening() {
+    Reklama.obejrzyj('skrocTimer', () => {
+      Bohater.scinajMinuty('trening', CONFIG.ekonomia.zlecenia.minutZaReklame);
+      Zapis.zapisz();
+      this.odswiezPanel('trening');
+    });
   },
 
   // ---------- KUŹNIA ----------

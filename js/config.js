@@ -317,6 +317,12 @@ const CONFIG = {
       klejnotyZaGodzine: 6      // skrócenie czekania: tyle klejnotów za godzinę
     },
 
+    // --- Tablica zleceń ---
+    zlecenia: {
+      klejnotyZaGodzine: 6,     // skrócenie czekania za klejnoty
+      minutZaReklame: 30        // ile minut ścina jedna reklama
+    },
+
     eliksir: {
       leczenieProcentMaxHp: 0.30,
       cena: 40,
@@ -330,6 +336,17 @@ const CONFIG = {
     krewZaKrew:    { maksBonusObrazen: 0.30 },        // Berserker: im niżej HP, tym mocniej bije
     zwinnosc:      { bonusUniku: 0.10 },              // Zabójca trudniej trafić
     celnoscZabojcy:{ bonusSzansyKrytyka: 0.10 }       // Zabójca częściej krytykuje
+  },
+
+  // --- Reklamy nagradzane (design/arena_ekonomia.md sekcja 2) ---
+  //  Tylko dobrowolne, zawsze za nagrodę, z limitem dziennym, żeby
+  //  były bonusem, a nie drugą pracą. Zero reklam między walkami.
+  reklamy: {
+    limityDzienne: {
+      skrocTimer:  5,        // skrócenie treningu albo zlecenia
+      podwojLup:   3,        // podwojenie złota z wygranej walki
+      odpocznij:   2         // darmowe pełne leczenie w gospodzie
+    }
   },
 
   // --- Zachowanie wrogów ---
